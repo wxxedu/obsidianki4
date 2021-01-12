@@ -15,7 +15,6 @@ def read_files(vault_path, relative_path):
 	try:
 		if relative_path == "":
 			paths = os.listdir(vault_path)
-			showInfo(", ".join(paths))
 		else:
 			paths = os.listdir(vault_path + "/" + relative_path)
 		for path in paths:
@@ -57,7 +56,8 @@ class ObsidiankiSettings(QDialog):
 		self.list = QCheckBox(self)
 		self.inline_code = QCheckBox(self)
 		self.block_code = QCheckBox(self)
-		self.okButton = QPushButton("Okay")
+		self.convert_button = QPushButton("Save and Convert")
+		self.save_button = QPushButton("Save and Close")
 		
 		layout.addRow(QLabel("Vault Path: "), self.vault_path)
 		layout.addRow(QLabel("Please use forward slashes for your vault path."))
@@ -74,7 +74,7 @@ class ObsidiankiSettings(QDialog):
 		layout.addRow(QLabel("Inline Code to Cloze"), self.inline_code)
 		layout.addRow(QLabel("Block Code to Cloze"), self.block_code)
 		
-		layout.addRow(self.okButton)
+		layout.addRow(self.save_button, self.convert_button)
 		
 		my_settings = settings.load_settings()
 		
@@ -102,10 +102,14 @@ class ObsidiankiSettings(QDialog):
 			self.list.setChecked(get_bool(settings.default_settings["list"]))
 			self.inline_code.setChecked(get_bool(settings.default_settings["inline code"]))
 			self.block_code.setChecked(get_bool(settings.default_settings["block code"]))
-		self.okButton.clicked.connect(self.onOk)
+		
+		self.convert_button.setDefault(True)
+		self.convert_button.clicked.connect(self.onOk)
+		self.save_button.clicked.connect(self.onSave)
 		self.show()
 		
 	def onOk(self):
+		files_catalog = []
 		newSettings = {}
 		newSettings["vault path"] = self.vault_path.text()
 		newSettings["mode"] = self.mode.text()
@@ -120,7 +124,22 @@ class ObsidiankiSettings(QDialog):
 		newSettings["block code"] = get_text(self.block_code.isChecked())
 		settings.save_settings(newSettings)
 		read_files(self.vault_path.text(), "")
-		showInfo("completed")
+		self.close()
+		
+	def onSave(self):
+		newSettings = {}
+		newSettings["vault path"] = self.vault_path.text()
+		newSettings["mode"] = self.mode.text()
+		newSettings["type"] = self.type.text()
+		newSettings["bold"] = get_text(self.bold.isChecked())
+		newSettings["italics"] = get_text(self.italics.isChecked())
+		newSettings["image"] = get_text(self.image.isChecked())
+		newSettings["quote"] = get_text(self.quote.isChecked())
+		newSettings["QA"] = get_text(self.QuestionOrAnswer.isChecked())
+		newSettings["list"] = get_text(self.list.isChecked())
+		newSettings["inline code"] = get_text(self.inline_code.isChecked())
+		newSettings["block code"] = get_text(self.block_code.isChecked())
+		settings.save_settings(newSettings)
 		self.close()
 		
 action = QAction("Obsidianki 4", aqt.mw)

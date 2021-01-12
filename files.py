@@ -29,4 +29,8 @@ class File:
         sublevel_name = "::".join(sublevel_name_segments)
         deck_name = root_name + sublevel_name
         return deck_name
+    
+    def get_obsidian_url(self):
+        
+        pass
             
