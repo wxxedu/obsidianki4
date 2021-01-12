@@ -1,14 +1,12 @@
 #!/usr/bin/env python3
 import re
-import sys
-import os
-sys.path.append(os.path.abspath('./markdown2'))
-import markdown2
-import markdown2Mathjax
 import html
+from .markdown2 import markdown2
+from .markdown2 import markdown2Mathjax
 
 default_cloze_settings = {
 	"mode": "heading",
+	"type": "cloze",
 	"bold": "True",
 	"italics": "True",
 	"image": "True",
@@ -21,42 +19,62 @@ default_cloze_settings = {
 
 def read_file(full_path:str) -> list:
 	output = ""
+	source = ""
+	uid = ""
+	has_uid = False
 	with open(full_path, mode="r", encoding="utf-8") as file:
 		source = file.read()
 		temporary_content = markdown2Mathjax.sanitizeInput(source)
 		markdown_file = markdown2.markdown(temporary_content[0], extras = ["fenced-code-blocks", "metadata", "strike", "tables", "tag-friendly", "task_list", "break-on-newline", "footnotes"])
 		metadata = markdown_file.metadata
-		if len(metadata) == 0:
-			markdown_file = markdown2.markdown(temporary_content[0], extras = ["fenced-code-blocks", "strike", "tables", "tag-friendly", "task_list", "break-on-newline", "footnotes"])
+		try:
+			uid = metadata["uid"]
+		except:
+			uid = str(hash(source))
+			if len(metadata) == 0:
+				markdown_file = markdown2.markdown(temporary_content[0], extras = ["fenced-code-blocks", "strike", "tables", "tag-friendly", "task_list", "break-on-newline", "footnotes"])
+				source = "---\nuid: " + uid + "\n---" + source
+			else:
+				source_lines = source.split("\n")
+				source_lines[0] = "---\nuid: " + uid
+				source = "\n".join(source_lines)
 		for i in range(len(temporary_content[1])):
 			temporary_content[1][i] = html.escape(temporary_content[1][i])
 			temporary_content[1][i] = temporary_content[1][i].replace("{{", "{ {")
 			temporary_content[1][i] = temporary_content[1][i].replace("}}", "} }")
-		# ==================================
-		# | FIXME: DELETE THIS TEST CODE   |
-		# ==================================
 		cloze_settings = metadata_to_settings(metadata)
+		
 		markdown_file = get_converted_file(cloze_settings, markdown_file)
+		if cloze_settings["type"] != "cloze":
+			markdown_file[1] = False
 		output = markdown2Mathjax.reconstructMath(markdown_file[0], temporary_content[1])
 	output = math_conversion(output)
 	# FIXME: output here
-	print(output)
-	return [output, markdown_file[1]]
+	with open(full_path, mode = "w", encoding = "utf-8") as file:
+		file.write(source)
+	return [uid, output, markdown_file[1]]
 
 def metadata_to_settings(metadata: dict) -> dict:
 	new_settings = {}
-	for key in default_cloze_settings.keys():
-		try:
-			new_settings[key] = metadata[key]
-		except:
-			new_settings[key] = default_cloze_settings[key]
+	try:
+		if metadata["type"] == "cloze":
+			for key in default_cloze_settings.keys():
+				try:
+					new_settings[key] = metadata[key]
+				except:
+					new_settings[key] = default_cloze_settings[key]
+		elif metadata["type"] == "basic":
+			for key in default_cloze_settings.keys():
+				new_settings[key] = "False"
+				new_settings["type"] = "basic"
+				new_settings["mode"] = "None"
+	except KeyError:
+		metadata["type"] = default_cloze_settings["type"]
+		new_settings = metadata_to_settings(metadata)
 	return new_settings
 
 def get_converted_file(cloze_settings, file_content):
 	file_content = cloze_generation(cloze_settings, file_content)
-	# ==================================
-	# | FIXME: DELETE THIS TEST CODE   |
-	# ==================================
 	file_content = cloze_number_generation(cloze_settings["mode"], file_content)
 	return file_content
 
@@ -83,19 +101,19 @@ def math_conversion(file_content):
 	return file_content
 				
 def cloze_generation(cloze_settings:dict, file_content:str) -> str:
-	if cloze_settings["bold"] == "True":
+	if cloze_settings["bold"] == "True" or cloze_settings["bold"] == "true":
 		file_content = file_content.replace("<strong>", "<strong>{{c¡::")
 		file_content = file_content.replace("</strong>", "}}</strong>")
-	if cloze_settings["italics"] == "True":
+	if cloze_settings["italics"] == "True" or cloze_settings["italics"] == "true":
 		file_content = file_content.replace("<em>", "<em>{{c¡::")
 		file_content = file_content.replace("</em>", "}}</em>")
-	if cloze_settings["image"] == "True":
+	if cloze_settings["image"] == "True" or cloze_settings["image"] == "true":
 		file_content = file_content.replace("<img", "{{c¡::<img")
 		file_content = file_content.replace("</img>", "</img>}}")
-	if cloze_settings["quote"] == "True":
+	if cloze_settings["quote"] == "True" or cloze_settings["quote"] == "true":
 		file_content = file_content.replace("<blockquote>", "<blockquote>{{c¡::")
 		file_content = file_content.replace("</blockquote>", "}}</blockquote>")
-	if cloze_settings["QA"] == "True":
+	if cloze_settings["QA"] == "True" or cloze_settings["QA"] == "true":
 		tmp = file_content.split("\n")
 		for i in range(0, len(tmp)):
 			if tmp[i].startswith("<p>A: "):
@@ -108,16 +126,15 @@ def cloze_generation(cloze_settings:dict, file_content:str) -> str:
 				tmp[i] = tmp[i].replace("<p>答：", "<p>答：{{c¡::")
 				tmp[i] = tmp[i].replace("</p>", "}}</p>")
 		file_content = "\n".join(tmp)
-	if cloze_settings["list"] == "True":
+	if cloze_settings["list"] == "True" or cloze_settings["list"] == "true":
 		file_content = file_content.replace("<li>", "<li>{{c¡::")
 		file_content = file_content.replace("</li>", "}}</li>")
-	if cloze_settings["inline code"] == "True":
+	if cloze_settings["inline code"] == "True" or cloze_settings["inline code"] == "true":
 		file_content = re.sub(r"<code>(?!<span)", "<code>{{c¡::", file_content)
 		file_content = re.sub(r"</code>(?!</pre>)", "}}</code>", file_content)
-	if cloze_settings["block code"] == "True":
+	if cloze_settings["block code"] == "True" or cloze_settings["block code"] == "true":
 		file_content = file_content.replace("<div class=\"codehilite\"><pre><span></span><code>", "<div class=\"codehilite\"><pre><span></span><code>{{c¡::")
 		file_content = file_content.replace("</code></pre></div>", "}}</code></pre></div>")
-	
 	return file_content
 
 def cloze_number_generation(mode:str, file_content:str) -> [str, bool]:
@@ -147,16 +164,7 @@ def cloze_number_generation(mode:str, file_content:str) -> [str, bool]:
 			tmp[i] = tmp[i].replace("¡", str(cloze_num))
 			
 		file_content = "\n".join(tmp)
-	elif mode == "doc":
+	elif mode == "file":
 		if file_content.find("¡") != -1:
 			file_content = file_content.replace("¡", "1")
-#	else:
-#		# ==================================================
-#		# | TODO: Add the setting for default_cloze_mode   |
-#		# ==================================================
-#		file_content = cloze_modes(default_cloze_mode, file_content)
-	
 	return [file_content, has_cloze]
-
-
-read_file("./markdown2/test.md")
