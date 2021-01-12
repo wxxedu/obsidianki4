@@ -5,11 +5,11 @@ default_cloze_mode = "heading"
 default_cloze_settings = {
 	"bold": True,
 	"italics": False,
+	"image": False,
+	"quote": False,
 	"QA": True,
 	"orderd list": True,
 	"non-ordered list": True,
-	"image": False,
-	"quote": False,
 	"inline code": True,
 	"block code": False,
 	"inline math": True,
@@ -63,6 +63,11 @@ def word_mode(cloze_settings=dict, file_content=str) -> str:
 	if new_settings["italics"]:
 		file_content = file_content.replace("<em>", "<em>{{c¡::")
 		file_content = file_content.replace("</em>", "}}</em>")
+	if new_settings["image"]:
+		file_content = file_content.replace("<img", "{{c¡::<img")
+		file_content = file_content.replace("</img>", "</img>}}")
+	if new_settings["quote"]:
+		pass
 	if new_settings["QA"]:
 		tmp = file_content.split("\n")
 		for i in range(0, len(tmp)):
@@ -80,8 +85,6 @@ def word_mode(cloze_settings=dict, file_content=str) -> str:
 		pass
 	if new_settings["non-ordered list"]:
 		pass
-	if new_settings["quote"]:
-		pass
 	if new_settings["inline code"]:
 		file_content = re.sub(r"<code>(?!<span)", "<code>{{c¡::", file_content)
 		file_content = re.sub(r"</code>(?!</pre>)", "}}</code>", file_content)
@@ -91,9 +94,7 @@ def word_mode(cloze_settings=dict, file_content=str) -> str:
 		pass
 	if new_settings["block math"]:
 		pass
-	if new_settings["image"]:
-		file_content = file_content.replace("<img", "{{c¡::<img")
-		file_content = file_content.replace("</img>", "</img>}}")
+	
 	pass
 	
 def math_conversion(file_content):
