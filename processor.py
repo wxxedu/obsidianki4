@@ -1,21 +1,9 @@
 #!/usr/bin/env python3
 import re
 import html
+from . import settings
 from .markdown2 import markdown2
 from .markdown2 import markdown2Mathjax
-
-default_cloze_settings = {
-	"mode": "heading",
-	"type": "cloze",
-	"bold": "True",
-	"italics": "True",
-	"image": "True",
-	"quote": "True",
-	"QA": "True",
-	"list": "True",
-	"inline code": "True",
-	"block code": "True"
-}
 
 def read_file(full_path:str) -> list:
 	output = ""
@@ -56,20 +44,23 @@ def read_file(full_path:str) -> list:
 
 def metadata_to_settings(metadata: dict) -> dict:
 	new_settings = {}
+	some_settings = settings.get_settings()
 	try:
 		if metadata["type"] == "cloze":
-			for key in default_cloze_settings.keys():
+			for key in some_settings.keys():
 				try:
 					new_settings[key] = metadata[key]
 				except:
-					new_settings[key] = default_cloze_settings[key]
+					if key != "vault path":
+						new_settings[key] = some_settings[key]
 		elif metadata["type"] == "basic":
-			for key in default_cloze_settings.keys():
-				new_settings[key] = "False"
+			for key in some_settings.keys():
+				if key != "vault path":
+					new_settings[key] = "False"
 				new_settings["type"] = "basic"
 				new_settings["mode"] = "None"
 	except KeyError:
-		metadata["type"] = default_cloze_settings["type"]
+		metadata["type"] = some_settings["type"]
 		new_settings = metadata_to_settings(metadata)
 	return new_settings
 

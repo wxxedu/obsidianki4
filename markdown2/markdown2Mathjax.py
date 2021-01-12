@@ -3,7 +3,7 @@ __version__ = '.'.join(map(str,__version_info__))
 __author__ = "Matthew Young"
 
 import re
-from markdown2 import markdown
+from .markdown2 import markdown
 
 def break_tie(inline,equation):
     """If one of the delimiters is a substring of the other (e.g., $ and $$) it is possible that the two will begin at the same location.  In this case we need some criteria to break the tie and decide which operation takes precedence.  I've gone with the longer of the two delimiters takes priority (for example, $$ over $).  This function should return a 2 for the equation block taking precedence, a 1 for the inline block.  The magic looking return statement is to map 0->2 and 1->1."""

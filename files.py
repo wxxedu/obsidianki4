@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 from aqt import mw
+from aqt.utils import showInfo
 from . import processor
 
 class File:
@@ -20,11 +21,12 @@ class File:
         self.uid = tmp[0]
         self.file_content = tmp[1]
         self.cloze_or_basic = tmp[2]
-    
-    def get_deck_name(vault_path, relative_path):
-        
-        pass
-        
         
     
+    def get_deck_name(self):
+        root_name = self.vault_path.split("/")[-1]
+        sublevel_name_segments = self.relative_path.split("/")[:-1]
+        sublevel_name = "::".join(sublevel_name_segments)
+        deck_name = root_name + sublevel_name
+        return deck_name
             
