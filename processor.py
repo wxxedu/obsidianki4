@@ -4,6 +4,18 @@ import html
 from . import settings
 from .markdown2 import markdown2
 from .markdown2 import markdown2Mathjax
+from aqt.utils import showInfo
+
+mark_file_extras = {
+	"fenced-code-blocks": None,
+	"metadata": None, 
+	"strike": None, 
+	"tables": None, 
+	"tag-friendly": None, 
+	"task_list": None, 
+	"footnotes": None, 
+	"break-on-newline": True
+}
 
 def read_file(full_path:str) -> list:
 	output = ""
@@ -13,12 +25,12 @@ def read_file(full_path:str) -> list:
 	with open(full_path, mode="r", encoding="utf-8") as file:
 		source = file.read()
 		temporary_content = markdown2Mathjax.sanitizeInput(source)
-		markdown_file = markdown2.markdown(temporary_content[0], extras = ["fenced-code-blocks", "metadata", "strike", "tables", "tag-friendly", "task_list", "break-on-newline", "footnotes"])
+		markdown_file = markdown2.markdown(temporary_content[0], extras = ["fenced-code-blocks", "metadata", "strike", "tables", "tag-friendly", "task_list", "footnotes", "break-on-newline"])
 		metadata = markdown_file.metadata
 		try:
 			uid = metadata["uid"]
 		except:
-			uid = str(hash(source))
+			uid = str(abs(hash(source)))
 			if len(metadata) == 0:
 				markdown_file = markdown2.markdown(temporary_content[0], extras = ["fenced-code-blocks", "strike", "tables", "tag-friendly", "task_list", "break-on-newline", "footnotes"])
 				source = "---\nuid: " + uid + "\n---" + source
@@ -40,7 +52,7 @@ def read_file(full_path:str) -> list:
 	# FIXME: output here
 	with open(full_path, mode = "w", encoding = "utf-8") as file:
 		file.write(source)
-	return [uid, output, markdown_file[1]]
+	return [uid, output, markdown_file[1], metadata]
 
 def metadata_to_settings(metadata: dict) -> dict:
 	new_settings = {}
@@ -99,33 +111,57 @@ def cloze_generation(cloze_settings:dict, file_content:str) -> str:
 		file_content = file_content.replace("<em>", "<em>{{c¡::")
 		file_content = file_content.replace("</em>", "}}</em>")
 	if cloze_settings["image"] == "True" or cloze_settings["image"] == "true":
-		file_content = file_content.replace("<img", "{{c¡::<img")
-		file_content = file_content.replace("</img>", "</img>}}")
-	if cloze_settings["quote"] == "True" or cloze_settings["quote"] == "true":
-		file_content = file_content.replace("<blockquote>", "<blockquote>{{c¡::")
-		file_content = file_content.replace("</blockquote>", "}}</blockquote>")
+		file_content = apply_cloze_to_image(file_content)
+	if cloze_settings["inline code"] == "True" or cloze_settings["inline code"] == "true":
+		file_content = re.sub(r"<code>(?!<span)", "<code>{{c¡::", file_content)
+		file_content = re.sub(r"</code>(?!</pre>)", "}}</code>", file_content)
 	if cloze_settings["QA"] == "True" or cloze_settings["QA"] == "true":
 		tmp = file_content.split("\n")
 		for i in range(0, len(tmp)):
-			if tmp[i].startswith("<p>A: "):
-				
+			if tmp[i].startswith("<p>A: ") and tmp[i].endswith("</p>\n"):
+				tmp[i] = tmp[i].replace("{{c¡::", "")
 				# TODO: add a security check to make sure that these two things are in the same line. 
 				
 				tmp[i] = tmp[i].replace("<p>A: ", "<p>A: {{c¡::")
 				tmp[i] = tmp[i].replace("</p>", "}}</p>")
-			elif tmp[i].startswith("<p>答："):
+			elif tmp[i].startswith("<p>答：") and tmp[i].endswith("</p>\n"):
+				tmp[i] = tmp[i].replace("{{c¡::", "")
 				tmp[i] = tmp[i].replace("<p>答：", "<p>答：{{c¡::")
+				tmp[i] = tmp[i].replace("</p>", "}}</p>")
+			# ==================================================================
+			# | You Can Disable this code if you Enabled strict line spacing.  |
+			# ==================================================================
+			elif tmp[i].startswith("A: ") and tmp[i].endswith("</p>\n"):
+				tmp[i] = tmp[i].replace("{{c¡::", "")
+				tmp[i] = tmp[i].replace("A: ", "A: {{c¡::", 1)
+				tmp[i] = tmp[i].replace("</p>", "}}</p>")
+			elif tmp[i].startswith("答：") and tmp[i].endswith("</p>\n"):
+				tmp[i] = tmp[i].replace("{{c¡::", "")
+				tmp[i] = tmp[i].replace("答：", "答: {{c¡::")
 				tmp[i] = tmp[i].replace("</p>", "}}</p>")
 		file_content = "\n".join(tmp)
 	if cloze_settings["list"] == "True" or cloze_settings["list"] == "true":
-		file_content = file_content.replace("<li>", "<li>{{c¡::")
-		file_content = file_content.replace("</li>", "}}</li>")
-	if cloze_settings["inline code"] == "True" or cloze_settings["inline code"] == "true":
-		file_content = re.sub(r"<code>(?!<span)", "<code>{{c¡::", file_content)
-		file_content = re.sub(r"</code>(?!</pre>)", "}}</code>", file_content)
+		tmp = file_content.split("\n")
+		for i in range(0, len(tmp)):
+			if tmp[i].find("{{c¡::") != -1:
+				pass
+			else:
+				tmp[i] = tmp[i].replace("<li>", "<li>{{c¡::")
+				tmp[i] = tmp[i].replace("</li>", "}}</li>")
+		file_content = "\n".join(tmp)
+	if cloze_settings["quote"] == "True" or cloze_settings["quote"] == "true":
+		# ===================================================
+		# | TODO: use REGEX to replace the proper ones here |
+		# ===================================================
+		file_content = file_content.replace("<blockquote>", "<blockquote>{{c¡::")
+		file_content = file_content.replace("</blockquote>", "}}</blockquote>")
 	if cloze_settings["block code"] == "True" or cloze_settings["block code"] == "true":
+		# ===================================================
+		# | TODO: use REGEX to replace the proper ones here |
+		# ===================================================
 		file_content = file_content.replace("<div class=\"codehilite\"><pre><span></span><code>", "<div class=\"codehilite\"><pre><span></span><code>{{c¡::")
 		file_content = file_content.replace("</code></pre></div>", "}}</code></pre></div>")
+	file_content = highlight_conversion(file_content, cloze_settings["highlight"])
 	return file_content
 
 def cloze_number_generation(mode:str, file_content:str) -> [str, bool]:
@@ -147,15 +183,77 @@ def cloze_number_generation(mode:str, file_content:str) -> [str, bool]:
 				tmp[i] = tmp[i].replace("¡", str(cloze_num), 1)
 		file_content = "\n".join(tmp)
 	elif mode == "heading":
+		# ==========================================================
+		# | TODO: Check the code here to see if it actually works  |
+		# ==========================================================
 		tmp = file_content.split("\n")
 		cloze_num = 0
+		increase_num = 0
 		for i in range(0, len(tmp)):
-			if re.search(r"<h\d>", tmp[i]) != None or tmp[i].startswith("<p>A: ") or tmp[i].startswith("<p>答：") or tmp[i].startswith("<li>"):
-				cloze_num = cloze_num + 1
+			if re.search(r"<h\d>", tmp[i]) != None:
+				cloze_num = get_cloze_number(tmp) + 1
+			elif tmp[i].startswith("<p>A: ") or tmp[i].startswith("<p>答：") or tmp[i].startswith("<li>") or tmp[i].startswith("A: ") or tmp[i].startswith("答："):
+				increase_num = get_cloze_number(tmp) + 1
+				tmp[i] = tmp[i].replace("¡", str(increase_num))
+				cloze_num = increase_num + 1
 			tmp[i] = tmp[i].replace("¡", str(cloze_num))
-			
 		file_content = "\n".join(tmp)
-	elif mode == "file":
+	elif mode == "document":
 		if file_content.find("¡") != -1:
 			file_content = file_content.replace("¡", "1")
 	return [file_content, has_cloze]
+
+
+def get_cloze_number(tmp) -> int:
+	file_content = "".join(tmp)
+	cloze_number = 0
+	for i in range(1, 7):
+		if file_content.find("{{c%d::"%(i)) != -1:
+			cloze_number = i
+	return cloze_number
+
+# =========================================
+# | TODO: Check to see if this code works |
+# =========================================
+
+
+def highlight_conversion(file_content: str, to_cloze: bool) -> str:
+	lines = file_content.split("\n")
+	isInCode = False
+	for i in range(0, len(lines)):
+		if lines[i].startswith("<div class=\"codehilite\"><pre><span></span><code>"):
+			isInCode = True
+		elif lines[i].startswith("</code></pre></div>"):
+			isInCode = False
+		if not isInCode:
+			lines[i] = apply_highlight(lines[i], to_cloze)
+	file_content = "\n".join(lines)
+	return file_content
+
+
+def apply_highlight(line: str, to_cloze: str) -> str:
+	line = "ªªª" + line + "ªªª"
+	line_segments = line.split("==")
+	number_of_highlights = len(line_segments) // 2
+	if number_of_highlights > 0:
+		if to_cloze == "True" or to_cloze == "true":
+			for i in range(1, number_of_highlights + 1):
+				highlight_index = 2 * i - 1
+				line_segments[highlight_index] = "<label id = \"highlight\">{{c¡::" + line_segments[highlight_index] + "}}</label>"
+		else:
+			for i in range(1, number_of_highlights + 1):
+				highlight_index = 2 * i - 1
+				line_segments[highlight_index] = "<label id = \"highlight\">" + line_segments[highlight_index] + "</label>"
+
+	line = "".join(line_segments)
+	line = line.replace("ªªª", "")
+	return line
+
+def apply_cloze_to_image(file_content: str) -> str:
+	lines = file_content.split("\n")
+	for i in range(0, len(lines)):
+		image_url = re.search(r"<img src=\".+? \/>", lines[i])
+		if image_url != None:
+			lines[i] = re.sub(r"<img src=\".+? \/>", "{{c¡::" + image_url.group(0) + "}}", lines[i])
+	file_content = "\n".join(lines)
+	return file_content

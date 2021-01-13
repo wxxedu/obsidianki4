@@ -14,11 +14,12 @@ default_settings = {
     "bold": "True",
     "italics": "True",
     "image": "True",
-    "quote": "True",
+    "quote": "False", # FIXME: fix the conflict of Quote with other clozes
     "QA": "True",
     "list": "True",
     "inline code": "True",
-    "block code": "True"
+    "block code": "False",
+    "highlight": "False"
 }
 
 SETTINGS_PATH = os.path.expanduser("~/.obsidianki4.settings")
