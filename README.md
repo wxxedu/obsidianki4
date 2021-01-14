@@ -10,6 +10,8 @@ Its github page is [obsidianki4](https://github.com/wxxedu/obsidianki4).
 
 You can install this Add-on by downloading the `obsidianki 4.ankiaddon` file from the releases section of GitHub and double click on it. 
 
+You can also download from AnkiWeb: [Obsidianki 4 Addon Page](https://ankiweb.net/shared/info/620260832). The code for this add-on is 620260832.
+
 ## How to Use
 
 Before starting to use, you will have to install Obsidianki's template, without which Obsidianki would not work. To do so, go to Anki's Add-ons folder, open the folder "Obsidianki 4", and find `Obsidianki 4.apkg`. Double click on it to install. You can also download it from GitHub. 
