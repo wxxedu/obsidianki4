@@ -11,15 +11,15 @@
 
 <h2>How to Use</h2>
 
-<p>Before starting to use, you will have to install Obsidianki's template, without which Obsidianki would not work. To do so, go to Anki's Add-ons folder, open the folder for "Obsidianki 4", and find "Obsidianki "</p>
+<p><strong>Before starting to use, you will have to install Obsidianki's template, without which Obsidianki would not work.</strong> To do so, go to Anki's Add-ons folder, open the folder "Obsidianki 4", and find <code>Obsidianki 4.apkg</code>. Double click on it to install. You can also download it from GitHub. </p>
 
 <p>After you've installed the Add-on, you can open Anki, select <code>Tools</code> -> <code>Obsidianki 4</code>, as shown in the following picture.</p>
 
-<p>!<a href="./pictures/obsidianki menubar.png"></a></p>
+<p><img src="https://tva1.sinaimg.cn/large/008eGmZEgy1gmmwz3peljj30u80ncq62.jpg" alt="" title="" /></p>
 
 <p>The following menu will pop-up, which will include the default preferences panel. <strong>NOTE THAT THE SETTINGS IN THIS PANEL ARE ALL DEFAULT SETTINGS</strong>, and you <strong>SHOULD NOT</strong> change them regularly, as a change will <strong>AFFECT ALL YOUR NOTES</strong>.</p>
 
-<p>!<a href="./pictures/preferences panel.png"></a></p>
+<p><img src="https://tva1.sinaimg.cn/large/008eGmZEgy1gmmwzm0g2mj30ki0setbi.jpg" alt="" title="" /></p>
 
 <p>Copy the path of your Obsidian vault into the first field. Note that you will have to use <strong>forward slashes</strong> <code>/</code> instead of backward ones for Obsidianki to function properly. </p>
 
@@ -111,3 +111,92 @@
 <h3>Type</h3>
 
 <p>There are two types in Obsidianki 4: <code>cloze</code> and <code>basic</code>. Nevertheless, these two types are different from Anki's <code>cloze</code> and <code>basic</code>. </p>
+
+<h4><code>cloze</code></h4>
+
+<p>This type will create visible deletions on the screen. You will be able to see <code>[...]</code> on the screen where you applied cloze.</p>
+
+<h4><code>basic</code></h4>
+
+<p>This type will only create one card, and the cloze deletion would not be visible. </p>
+
+<h3>Conversions</h3>
+
+<h4>Bold to Cloze:</h4>
+
+<p>This converts the bold syntax <code>**bold**</code> to cloze in Anki, while preserving the format. </p>
+
+<h4>Italics to Cloze:</h4>
+
+<p>This converts the italics syntax <code>*italics*</code> to cloze in Anki, while preserving the format. </p>
+
+<h4>Highlight to Cloze:</h4>
+
+<p>This converts the highlight syntax <code>==highlight==</code> to cloze in Anki, while preserving the format. </p>
+
+<h4>Image to Cloze:</h4>
+
+<p>This converts the image syntax <code>![]()</code> to cloze in Anki, while preserving the image. </p>
+
+<h4>Quote to Cloze:</h4>
+
+<p>This converts the quote syntax <code>&gt; this is a quote</code> to cloze in Anki, while preserving format. </p>
+
+<p><strong>Be aware that currently, this has conflicts with the other syntaxes. If you want to leave this option on, you will have to make sure that you apply no other cloze formatting in the quote.</strong> </p>
+
+<h4>QA to Cloze:</h4>
+
+<p>This converts the QA syntax that I created into cloze in Anki. </p>
+
+<p>```markdown
+Q: Question</p>
+
+<p>A: Answer
+```</p>
+
+<p>```markdown
+Q: Question</p>
+
+<p>A: {{c1::Answer}}
+```</p>
+
+<h4>List to Cloze:</h4>
+
+<p>This turns any list into <code>Cloze</code>, where each list item is a cloze. </p>
+
+<h4>Inline Code to Cloze:</h4>
+
+<p>This converts the inline code syntax to cloze in Anki, while preserving format. </p>
+
+<h4>Block Code to Cloze:</h4>
+
+<p>This converts the block code syntax to cloze in Anki, while preserving format.</p>
+
+<h2>Individual Settings</h2>
+
+<p>You can also individually specify the settings for each note (file) in the metadata section of your file. The metadata section is the following segment in the very beginning of a document. </p>
+
+<h2>```markdown</h2>
+
+<h2>uid: 4511487055494033182</h2>
+
+<p>```</p>
+
+<p><strong>By the way, Obsidianki will automatically create a metadata section that contains the file's unique id in the file. If you don't want duplicated notes, do not change the uid.</strong></p>
+
+<p>If you want to change the individual importing settings for each file, type it in in the metadata section. You can make this a template in Obsidian:</p>
+
+<h2>```</h2>
+
+<p>mode: heading
+type: cloze
+bold: True
+italics: True
+highlight: False
+image: True
+quote: False
+QA: True
+list: True
+inline code: True
+block code: False
+```</p>

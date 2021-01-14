@@ -10,15 +10,15 @@ You can install this Add-on by downloading the `obsidianki 4.ankiaddon` file fro
 
 ## How to Use
 
-Before starting to use, you will have to install Obsidianki's template, without which Obsidianki would not work. To do so, go to Anki's Add-ons folder, open the folder "Obsidianki 4", and find `Obsidianki 4.apkg`. Double click on it to install. You can also download it from GitHub. 
+**Before starting to use, you will have to install Obsidianki's template, without which Obsidianki would not work.** To do so, go to Anki's Add-ons folder, open the folder "Obsidianki 4", and find `Obsidianki 4.apkg`. Double click on it to install. You can also download it from GitHub. 
 
 After you've installed the Add-on, you can open Anki, select `Tools` -> `Obsidianki 4`, as shown in the following picture.
 
-![](./pictures/obsidianki menubar.png)
+![](https://tva1.sinaimg.cn/large/008eGmZEgy1gmmwz3peljj30u80ncq62.jpg)
 
 The following menu will pop-up, which will include the default preferences panel. **NOTE THAT THE SETTINGS IN THIS PANEL ARE ALL DEFAULT SETTINGS**, and you **SHOULD NOT** change them regularly, as a change will **AFFECT ALL YOUR NOTES**.
 
-![](./pictures/preferences panel.png)
+![](https://tva1.sinaimg.cn/large/008eGmZEgy1gmmwzm0g2mj30ki0setbi.jpg)
 
 Copy the path of your Obsidian vault into the first field. Note that you will have to use **forward slashes** `/` instead of backward ones for Obsidianki to function properly. 
 
@@ -104,6 +104,108 @@ In the document mode, everything will be converted to `{{c1::...}}`.
 ### Type
 
 There are two types in Obsidianki 4: `cloze` and `basic`. Nevertheless, these two types are different from Anki's `cloze` and `basic`. 
+
+#### `cloze`
+
+This type will create visible deletions on the screen. You will be able to see `[...]` on the screen where you applied cloze.
+
+#### `basic`
+
+This type will only create one card, and the cloze deletion would not be visible. 
+
+### Conversions
+
+#### Bold to Cloze:  
+
+This converts the bold syntax `**bold**` to cloze in Anki, while preserving the format. 
+
+#### Italics to Cloze: 
+
+This converts the italics syntax `*italics*` to cloze in Anki, while preserving the format. 
+
+#### Highlight to Cloze: 
+
+This converts the highlight syntax `==highlight==` to cloze in Anki, while preserving the format. 
+
+#### Image to Cloze:  
+
+This converts the image syntax `![]()` to cloze in Anki, while preserving the image. 
+
+#### Quote to Cloze:  
+
+This converts the quote syntax `> this is a quote` to cloze in Anki, while preserving format. 
+
+**Be aware that currently, this has conflicts with the other syntaxes. If you want to leave this option on, you will have to make sure that you apply no other cloze formatting in the quote.** 
+
+#### QA to Cloze: 
+
+This converts the QA syntax that I created into cloze in Anki. 
+
+```markdown
+Q: Question
+
+A: Answer
+```
+
+```markdown
+Q: Question
+
+A: {{c1::Answer}}
+```
+
+#### List to Cloze:
+
+This turns any list into `Cloze`, where each list item is a cloze. 
+
+#### Inline Code to Cloze: 
+
+ This converts the inline code syntax to cloze in Anki, while preserving format. 
+
+#### Block Code to Cloze:
+
+This converts the block code syntax to cloze in Anki, while preserving format.
+
+## Individual Settings
+
+You can also individually specify the settings for each note (file) in the metadata section of your file. The metadata section is the following segment in the very beginning of a document. 
+
+```markdown
+---
+uid: 4511487055494033182
+---
+```
+
+**By the way, Obsidianki will automatically create a metadata section that contains the file's unique id in the file. If you don't want duplicated notes, do not change the uid.**
+
+If you want to change the individual importing settings for each file, type it in in the metadata section. You can make this a template in Obsidian:
+
+```
+---
+mode: heading
+type: cloze
+bold: True
+italics: True
+highlight: False
+image: True
+quote: False
+QA: True
+list: True
+inline code: True
+block code: False
+---
+```
+
+## Special Note
+
+### About the Development
+
+I will try my best to develop and maintain this add-on. However, as of right now, I am just a high school student who barely knows any programming. All my knowledge of programming come from my AP Computer Science A class LOL. 
+
+I know that my code is pretty bad, so feel free to help me update them. (please do so so that I can learn from you!) I will probably add more comments to my code explaining my thoughts while writing them in the future, just in case you want to know what I did in the code. (I want to do this because I struggled to understand Anki's source code and other Add-ons). While this will not be an add-on writing tutorial and I am by no means good at python, it is my best hopes that sharing my thoughts as a beginner will help other beginners understand better how to write Anki add-ons. This will take some time for me to do, as I need to get back to work and studying, but I am going to spend some time doing so. 
+
+### Thanks
+
+I want to thank the creators of Anki and Obsidian for building such beautiful apps. I also want to thank my friend [Anis](https://github.com/qiaozhanrong) for helping me with the code. 
 
 
 
