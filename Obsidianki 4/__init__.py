@@ -21,6 +21,12 @@ def read_files(root_path, relative_path):
 	for path in paths:
 		if path.find(".") != -1 and path.split(".")[-1] != "md":
 			pass
+			
+		# ===============================
+		# | TODO: Add a toggle for this |
+		# ===============================
+		elif path == "Templates":
+			pass
 		elif path.endswith(".md"):
 			new_path = relative_path + "/" + path
 			new_file = files.File(root_path, new_path)
