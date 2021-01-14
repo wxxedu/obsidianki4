@@ -1,0 +1,113 @@
+<meta charset="UTF-8">
+<h1>obsidianki 4</h1>
+
+<p>This is a <a href="https://github.com/ankitects">Anki</a> add-on that would import your files from <a href="https://obsidian.md">Obsidian</a> into Anki while preserving the wiki-links. Each file in Obsidianki will be converted to a single note in Anki. It does so by searching through your vault for the file with the name specified, and generates an Obsidian url from the path. </p>
+
+<p>Its github page is <a href="https://github.com/wxxedu/obsidianki4">obsidianki4</a>. </p>
+
+<h2>How to Install</h2>
+
+<p>You can install this Add-on by downloading the <code>obsidianki 4.ankiaddon</code> file from the releases section of GitHub and double click on it. </p>
+
+<h2>How to Use</h2>
+
+<p>Before starting to use, you will have to install Obsidianki's template, without which Obsidianki would not work. To do so, go to Anki's Add-ons folder, open the folder for "Obsidianki 4", and find "Obsidianki "</p>
+
+<p>After you've installed the Add-on, you can open Anki, select <code>Tools</code> -> <code>Obsidianki 4</code>, as shown in the following picture.</p>
+
+<p>!<a href="./pictures/obsidianki menubar.png"></a></p>
+
+<p>The following menu will pop-up, which will include the default preferences panel. <strong>NOTE THAT THE SETTINGS IN THIS PANEL ARE ALL DEFAULT SETTINGS</strong>, and you <strong>SHOULD NOT</strong> change them regularly, as a change will <strong>AFFECT ALL YOUR NOTES</strong>.</p>
+
+<p>!<a href="./pictures/preferences panel.png"></a></p>
+
+<p>Copy the path of your Obsidian vault into the first field. Note that you will have to use <strong>forward slashes</strong> <code>/</code> instead of backward ones for Obsidianki to function properly. </p>
+
+<p>After you've set the settings (I will explain in the next section), you can click on "Save and Convert", and it will complete the conversion. However, you won't notice a difference. Why? Because Anki's interface is not refreshed. To refresh the interface, you could click on anything in Anki's main interface, and it should be refreshed. </p>
+
+<h2>Default Settings</h2>
+
+<p>Now, let's take a look at the default settings. </p>
+
+<h3>Vault Path</h3>
+
+<p>This place shows the path to your vault. Note that in order for the wiki-links in Anki to link back to Obsidian, you will have to use a path that is actually a vault. If you just copy the path of a folder in the vault, the link function will not work. </p>
+
+<p>Another thing to take especial note of is that you should use <strong>forward slashes</strong> instead of backward ones. </p>
+
+<h3>Mode</h3>
+
+<p>There are four importing cloze modes in Obsidianki. </p>
+
+<h4><code>word</code> mode</h4>
+
+<p>It generates a card for every cloze. If you have 10 clozes, it generates 10 cards from <code>{{c1::Card 1}}</code> to <code>{{c10::}}</code>.</p>
+
+<h4><code>line</code> mode</h4>
+
+<p>It generates a card for every line. If you have 10 clozes in the first line, they will be <code>{{c1::Card 1}}</code> to <code>{{c10::Card 10}}</code>. If you have 2 more clozes in the second line, they will be <code>{{c2::Card 11}}</code> to <code>{{c2::Card 12}}</code>.</p>
+
+<h4><code>heading</code> mode (Recommended)</h4>
+
+<p>It generates a card for the content under every heading, with the exception of list cards and QA cards (I will explain this below). If you have a file as below:</p>
+
+<p>```markdown</p>
+
+<h1>Heading 1</h1>
+
+<p>Hello <strong>Obsidianki</strong>.</p>
+
+<p>This is the best <strong>Anki</strong> add-on for importing Obsidian files into <strong>Anki</strong>.</p>
+
+<h2>Heading 2</h2>
+
+<p>This is something <strong>interesting</strong>.</p>
+
+<p>Q: What is the best add-on for importing Obsidian files into <strong>Anki</strong>?</p>
+
+<p>A: Obsidianki!</p>
+
+<p>What are the features of Obsidianki?</p>
+
+<ol>
+<li>Import files</li>
+<li>Preserve wiki links</li>
+<li>Convert to Clozes</li>
+</ol>
+
+<h2>Heading 3</h2>
+
+<p>This is <strong>Heading 3</strong>.</p>
+
+<p>```</p>
+
+<p>The "Obsidianki", "Anki" under "Heading 1" will be turned into <code>{{c1::Obsidianki}}</code> and <code>{{c1::Anki}}</code> respectively.</p>
+
+<p>Theoretically, everything under "Heading 2" should be turned into <code>{{c2::...}}</code> cards, right? Not quite, because I have added QA cards and list cards. So, after conversion, the portion under heading to would become:</p>
+
+<p>```markdown</p>
+
+<h2>Heading 2</h2>
+
+<p>This is something <strong>{{c2::interesting}}</strong>.</p>
+
+<p>Q: What is the best add-on for importing Obsidian files into <strong>Anki</strong>?</p>
+
+<p>A: {{c3::Obsidianki!}}</p>
+
+<p>What are the features of Obsidianki?</p>
+
+<ol>
+<li>{{c4::Import files}}</li>
+<li>{{c5::Preserve wiki links}}</li>
+<li>{{c6::Convert to Clozes}}
+```</li>
+</ol>
+
+<h4><code>document</code> mode</h4>
+
+<p>In the document mode, everything will be converted to <code>{{c1::...}}</code>.</p>
+
+<h3>Type</h3>
+
+<p>There are two types in Obsidianki 4: <code>cloze</code> and <code>basic</code>. Nevertheless, these two types are different from Anki's <code>cloze</code> and <code>basic</code>. </p>

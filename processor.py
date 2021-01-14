@@ -33,7 +33,7 @@ def read_file(full_path:str) -> list:
 			uid = str(abs(hash(source)))
 			if len(metadata) == 0:
 				markdown_file = markdown2.markdown(temporary_content[0], extras = ["fenced-code-blocks", "strike", "tables", "tag-friendly", "task_list", "break-on-newline", "footnotes"])
-				source = "---\nuid: " + uid + "\n---" + source
+				source = "---\nuid: " + uid + "\n---\n\n" + source
 			else:
 				source_lines = source.split("\n")
 				source_lines[0] = "---\nuid: " + uid
