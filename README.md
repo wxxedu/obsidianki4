@@ -1,6 +1,8 @@
 # obsidianki 4
 
-This is a [Anki](https://github.com/ankitects) add-on that would import your files from [Obsidian](https://obsidian.md) into Anki while preserving the wiki-links. Each file in Obsidianki will be converted to a single note in Anki. It does so by searching through your vault for the file with the name specified, and generates an Obsidian url from the path. 
+**Please back-up your vault regularly while using this add-on!**
+
+This is a [Anki](https://github.com/ankitects) add-on that would import your files from [Obsidian](https://obsidian.md) into Anki while preserving the wiki-links. Each file in Obsidianki will be converted to a single note in Anki. It does so by searching through your vault for the file with the name specified and generating an Obsidian url from the path. 
 
 Its github page is [obsidianki4](https://github.com/wxxedu/obsidianki4). 
 
