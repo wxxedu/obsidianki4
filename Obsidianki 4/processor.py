@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 import re
 import html
+import random
 from . import settings
 from .markdown2 import markdown2
 from .markdown2 import markdown2Mathjax
 from aqt.utils import showInfo
+
 
 mark_file_extras = {
 	"fenced-code-blocks": None,
@@ -30,7 +32,9 @@ def read_file(full_path:str) -> list:
 		try:
 			uid = metadata["uid"]
 		except:
-			uid = str(abs(hash(source)))
+			random_number = random.randint(0, 100000000000000000000000000000)
+			new_source = source + full_path + str(random_number)
+			uid = str(abs(hash(new_source)))
 			if len(metadata) == 0:
 				markdown_file = markdown2.markdown(temporary_content[0], extras = ["fenced-code-blocks", "strike", "tables", "tag-friendly", "task_list", "break-on-newline", "footnotes"])
 				source = "---\nuid: " + uid + "\n---\n\n" + source

@@ -120,6 +120,8 @@ class File:
             pass
         tag_line = tag_line.lstrip("[")
         tag_line = tag_line.rstrip("]")
+        if tag_line.find("/"):
+            tag_line = tag_line.replace("/", "::")
         tags = tag_line.split(",")
         for i in range(0, len(tags)):
             tags[i] = tags[i].lstrip(" ")
