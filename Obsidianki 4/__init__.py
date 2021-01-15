@@ -4,7 +4,6 @@ from . import files
 from . import settings
 from . import obsidian_url
 from . import anki_importer
-from . import anki_cleaner
 import aqt
 from aqt import AnkiQt, gui_hooks
 from aqt.qt import *
@@ -143,13 +142,13 @@ class ObsidiankiSettings(QDialog):
 		###############################################################################################################################
 		
 		my_files_catalog = read_files(self.vault_path.text(), "")
-		for i in range(0, len(my_files_catalog)):
+		
+		length_of_files = len(my_files_catalog)
+		for i in range(0, length_of_files):
 			my_files_catalog[i].set_file_content(obsidian_url.process_obsidian_file(my_files_catalog[i].file_content, my_files_catalog))
-			
-		for i in range(0, len(my_files_catalog)):
-			anki_importer.importer(my_files_catalog[i])
-			
-		anki_cleaner.anki_cleaner(self.vault_path.text())
+		
+		
+		anki_importer.importer(my_files_catalog)
 		
 		###############################################################################################################################
 		###############################################################################################################################
