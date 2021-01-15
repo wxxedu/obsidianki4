@@ -66,6 +66,14 @@ class File:
         deck_name = root_name + sublevel_name
         return deck_name
     
+    def get_file_root_folder(self):
+        tmp = self.relative_path.lstrip("/")
+        root_folder = tmp.split("/")[0]
+        return root_folder
+    
+    def get_file_full_path(self):
+        return self.full_path
+    
     
     def generate_obsidian_url(self):
         vault_name = self.vault_path.split("/")[-1]

@@ -7,6 +7,8 @@ from aqt import AnkiQt, gui_hooks
 from aqt.utils import tooltip
 from PyQt5 import QtWidgets, QtCore
 
+# TODO: Rework on the settings and clean up the code
+
 default_settings = {
     "vault path": "/Users/xiuxuan/Knowledge Base",
     "mode": "heading",
@@ -40,6 +42,9 @@ def get_settings():
     settings = load_settings()
     return settings
 
+def get_settings_by_name(setting_name):
+    settings = load_settings()
+    return settings[setting_name]
 
 
 
