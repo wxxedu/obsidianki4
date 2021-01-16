@@ -1,0 +1,146 @@
+
+<b>Note: please back up your obsidian vault regularly while using this add-on. As it will write certain information to your vault, I am concerned that it might have the very slight  chance of erasing your files.</b>
+
+This is a Anki add-on that would import your files from Obsidian into Anki while preserving the wiki-links. Each file in Obsidianki will be converted to a single note in Anki. It does so by searching through your vault for the file with the name specified and generating an Obsidian url from the path. Note that this only works with Anki 2.1.38+
+
+<a href="https://github.com/wxxedu/obsidianki4" rel="nofollow">https://github.com/wxxedu/obsidianki4</a>
+
+This add-on also works with <a href="https://ankiweb.net/shared/info/594329229" rel="nofollow">hierarchical tags</a> to convert the hierarchical tags in Obsidian in the metadata section (<code>tags: [tag1/tag1.1/tag1.1.1, tag2/tag2.1/tag2.1.1]</code>) into anki hierarchical tags. <code>tag1::tag1.1::tag1.1.1</code> and <code>tag2::tag2.1::tag2.1.1</code>.
+
+## How to Install
+
+You can install this Add-on by downloading the <code>obsidianki 4.ankiaddon</code> file from the <a href="https://github.com/wxxedu/obsidianki4/releases" rel="nofollow">releases section</a> of GitHub and double click on it. 
+
+You can also use the install code below. 
+
+## How to Use
+
+<b>Before starting to use, you will have to install Obsidianki's template, without which Obsidianki would not work.</b> You can also download it from <a href="https://github.com/wxxedu/obsidianki4/blob/main/Obsidianki%204.apkg" rel="nofollow">Obsidianki's Github Page</a>. 
+
+After you've installed the Add-on, you can open Anki, select <code>Tools</code> -&gt; <code>Obsidianki 4</code>, as shown in the following picture.
+
+<img src="https://tva1.sinaimg.cn/large/008eGmZEgy1gmmwz3peljj30u80ncq62.jpg">
+
+The following menu will pop-up, which will include the default preferences panel. <b>NOTE THAT THE SETTINGS IN THIS PANEL ARE ALL DEFAULT SETTINGS</b>, and you <b>SHOULD NOT</b> change them regularly, as a change will <b>AFFECT ALL YOUR NOTES</b>.
+
+<img src="https://tva1.sinaimg.cn/large/008eGmZEgy1gmmwzm0g2mj30ki0setbi.jpg">
+
+Copy the path of your Obsidian vault into the first field. Note that you will have to use <b>forward slashes</b> <code>/</code> instead of backward ones for Obsidianki to function properly. 
+
+After you've set the settings (I will explain in the next section), you can click on "Save and Convert", and it will complete the conversion. However, you won't notice a difference. Why? Because Anki's interface is not refreshed. To refresh the interface, you could click on anything in Anki's main interface, and it should be refreshed. 
+
+## Default Settings
+
+Now, let's take a look at the default settings. 
+
+### Vault Path
+
+This place shows the path to your vault. Note that in order for the wiki-links in Anki to link back to Obsidian, you will have to use a path that is actually a vault. If you just copy the path of a folder in the vault, the link function will not work. 
+
+Another thing to take especial note of is that you should use <b>forward slashes</b> instead of backward ones. 
+
+### Mode
+
+There are four importing cloze modes in Obsidianki. 
+
+#### <code>word</code> mode
+
+It generates a card for every cloze. If you have 10 clozes, it generates 10 cards from <code>{{c1::Card 1}}</code> to <code>{{c10::}}</code>.
+
+#### <code>line</code> mode
+
+It generates a card for every line. If you have 10 clozes in the first line, they will be <code>{{c1::Card 1}}</code> to <code>{{c10::Card 10}}</code>. If you have 2 more clozes in the second line, they will be <code>{{c2::Card 11}}</code> to <code>{{c2::Card 12}}</code>.
+
+#### <code>heading</code> mode (Recommended)
+
+It generates a card for the content under every heading, with the exception of list cards and QA cards (I will explain this below). If you have a file as below:
+
+<img src="https://tva1.sinaimg.cn/large/008eGmZEgy1gmmz02sklvj31fr0u0jv1.jpg">
+
+The "Obsidianki", "Anki" under "Heading 1" will be turned into <code>{{c1::Obsidianki}}</code> and <code>{{c1::Anki}}</code> respectively.
+
+Theoretically, everything under "Heading 2" should be turned into <code>{{c2::...}}</code> cards, right? Not quite, because I have added QA cards and list cards. So, after conversion, the portion under heading to would become:
+
+<img src="https://tva1.sinaimg.cn/large/008eGmZEgy1gmmz10f8dij31jq0iwtba.jpg">
+
+#### <code>document</code> mode
+
+In the document mode, everything will be converted to <code>{{c1::...}}</code>.
+
+### Type
+
+There are two types in Obsidianki 4: <code>cloze</code> and <code>basic</code>. Nevertheless, these two types are different from Anki's `cloze` and <code>basic</code>. 
+
+#### <code>cloze</code>
+
+This type will create visible deletions on the screen. You will be able to see <code>[...]</code> on the screen where you applied cloze.
+
+#### <code>basic</code>
+
+This type will only create one card, and the cloze deletion would not be visible. 
+
+### Conversions
+
+#### Bold to Cloze:  
+
+This converts the bold syntax <code>**bold**</code> to cloze in Anki, while preserving the format. 
+
+#### Italics to Cloze: 
+
+This converts the italics syntax <code>*italics*</code> to cloze in Anki, while preserving the format. 
+
+#### Highlight to Cloze: 
+
+This converts the highlight syntax <code>==highlight==</code> to cloze in Anki, while preserving the format. 
+
+#### Image to Cloze:  
+
+This converts the image syntax <code>![]()</code> to cloze in Anki, while preserving the image. 
+
+#### Quote to Cloze:  
+
+This converts the quote syntax <code>&gt; this is a quote</code> to cloze in Anki, while preserving format. 
+
+<b>Be aware that currently, this has conflicts with the other syntaxes. If you want to leave this option on, you will have to make sure that you apply no other cloze formatting in the quote.</b> 
+
+#### QA to Cloze: 
+
+This converts the QA syntax that I created into cloze in Anki. 
+
+<img src="https://tva1.sinaimg.cn/large/008eGmZEgy1gmmz3ghfsjj31js0c20tm.jpg">
+
+#### List to Cloze:
+
+This turns any list into cloze, where each list item is a cloze. 
+
+#### Inline Code to Cloze: 
+
+ This converts the inline code syntax to cloze in Anki, while preserving format. 
+
+#### Block Code to Cloze:
+
+This converts the block code syntax to cloze in Anki, while preserving format.
+
+## Individual Settings
+
+You can also individually specify the settings for each note (file) in the metadata section of your file. The metadata section is the following segment in the very beginning of a document. 
+
+<img src="https://tva1.sinaimg.cn/large/008eGmZEgy1gmmz4g7uqmj31js06qq3d.jpg">
+
+<b>By the way, Obsidianki will automatically create a metadata section that contains the file's unique id in the file. If you don't want duplicated notes, do not change the uid.</b>
+
+If you want to change the individual importing settings for each file, type it in in the metadata section. You can make this a template in Obsidian:
+
+<img src="https://tva1.sinaimg.cn/large/008eGmZEgy1gmmz5173rxj31jq0iutal.jpg">
+
+## Special Note
+
+### About the Development
+
+I will try my best to develop and maintain this add-on. However, as of right now, I am just a high school student who barely knows any programming. All my knowledge of programming come from my AP Computer Science A class LOL. 
+
+I know that my code is pretty bad, so feel free to help me update them. (please do so so that I can learn from you!)
+
+### Thanks
+
+I want to thank the creators of Anki and Obsidian for building such beautiful apps. I also want to thank my friend <a href="https://github.com/qiaozhanrong" rel="nofollow">Anis</a> for helping me with the code. 
