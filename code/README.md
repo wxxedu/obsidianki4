@@ -1,6 +1,8 @@
 # obsidianki 4
 
-**Please back-up your vault regularly while using this add-on!**
+> **Please back-up your vault regularly while using this add-on!**
+>
+> Theoretically, it now supports Anki 2.1.28 +. I am unware whether if supports earlier version, and I wasn't able to test it on Anki 2.1.28 as my laptop is a M1 MacBook Air and Anki 2.1.28 does not open on it. 
 
 This is a [Anki](https://github.com/ankitects) add-on that would import your files from [Obsidian](https://obsidian.md) into Anki while preserving the wiki-links. Each file in Obsidianki will be converted to a single note in Anki. It does so by searching through your vault for the file with the name specified and generating an Obsidian url from the path. 
 
@@ -22,7 +24,7 @@ After you've installed the Add-on, you can open Anki, select `Tools` -> `Obsidia
 
 The following menu will pop-up, which will include the default preferences panel. **NOTE THAT THE SETTINGS IN THIS PANEL ARE ALL DEFAULT SETTINGS**, and you **SHOULD NOT** change them regularly, as a change will **AFFECT ALL YOUR NOTES**.
 
-![](https://tva1.sinaimg.cn/large/008eGmZEgy1gmmwzm0g2mj30ki0setbi.jpg)
+![](https://tva1.sinaimg.cn/large/008eGmZEgy1gmpllk0e9nj30rq0zkn1f.jpg)
 
 Copy the path of your Obsidian vault into the first field. Note that you will have to use **forward slashes** `/` instead of backward ones for Obsidianki to function properly. 
 
@@ -37,6 +39,18 @@ Now, let's take a look at the default settings.
 This place shows the path to your vault. Note that in order for the wiki-links in Anki to link back to Obsidian, you will have to use a path that is actually a vault. If you just copy the path of a folder in the vault, the link function will not work. 
 
 Another thing to take especial note of is that you should use **forward slashes** instead of backward ones. 
+
+### Templates Folder Name
+
+The name of the folder in the first level that holds your templates. If specified, the contents in this folder would not be imported to Anki.
+
+### Trash Folder Name
+
+The name of the folder in the first level that holds your trash. If specified, the contents in this folder would be **erased** when you run the Obsidianki add-on, and the corresponding cards in anki would also be deleted.
+
+### Archive Folder Name
+
+The name of the folder in the first level that holds your archived file. If specified, corresponding anki cards to the contents in this folder would be deleted in Anki, but the files are still there in Obsidian and would not be deleted. 
 
 ### Mode
 
