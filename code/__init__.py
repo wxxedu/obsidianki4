@@ -5,6 +5,7 @@ from . import settings
 from . import obsidian_url
 from . import anki_importer
 import aqt
+from aqt import mw
 from aqt import AnkiQt, gui_hooks
 from aqt.qt import *
 from aqt.utils import showInfo
@@ -164,6 +165,9 @@ class ObsidiankiSettings(QDialog):
 		###############################################################################################################################
 		###############################################################################################################################
 		###############################################################################################################################
+		
+		mw.update()
+		mw.reset(True)
 
 		self.close()
 		

@@ -3,6 +3,8 @@
 > **Please back-up your vault regularly while using this add-on!**
 >
 > Theoretically, it now supports Anki 2.1.28 +. I am unware whether if supports earlier version, and I wasn't able to test it on Anki 2.1.28 as my laptop is a M1 MacBook Air and Anki 2.1.28 does not open on it. 
+> 
+> This add-on also works with [hierarchical tags](https://ankiweb.net/shared/info/594329229) to convert the hierarchical tags in Obsidian in the metadata section (`tags: [tag1/tag1.1/tag1.1.1, tag2/tag2.1/tag2.1.1]`) into anki hierarchical tags. `tag1::tag1.1::tag1.1.1` and `tag2::tag2.1::tag2.1.1`
 
 This is a [Anki](https://github.com/ankitects) add-on that would import your files from [Obsidian](https://obsidian.md) into Anki while preserving the wiki-links. Each file in Obsidianki will be converted to a single note in Anki. It does so by searching through your vault for the file with the name specified and generating an Obsidian url from the path. 
 

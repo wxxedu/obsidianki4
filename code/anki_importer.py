@@ -107,7 +107,10 @@ def empty_trash():
 		trash_directories = os.listdir(trash_can_path)
 		for trash_directory in trash_directories:
 			trash_directory_path = trash_can_path + "/" + trash_directory
-			shutil.rmtree(trash_directory_path)
+			try:
+				shutil.rmtree(trash_directory_path)
+			except NotADirectoryError:
+				os.remove(trash_directory_path)
 		
 def deck_has_cards(deck_id):
 	if deck_id != 1:
