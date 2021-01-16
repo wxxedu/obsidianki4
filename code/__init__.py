@@ -21,12 +21,6 @@ def read_files(root_path, relative_path):
 	for path in paths:
 		if path.find(".") != -1 and path.split(".")[-1] != "md":
 			pass
-			
-		# ===============================
-		# | TODO: Add a toggle for this |
-		# ===============================
-		elif path == "Templates":
-			pass
 		elif path.endswith(".md"):
 			new_path = relative_path + "/" + path
 			new_file = files.File(root_path, new_path)
@@ -52,11 +46,20 @@ class ObsidiankiSettings(QDialog):
 	def __init__(self, mw):
 		super().__init__(mw)
 		
+		
 		layout = QFormLayout(self)
 		
+		
 		self.vault_path = QLineEdit(self)
+		self.templates_folder = QLineEdit(self)
+		self.trash_folder = QLineEdit(self)
+		self.archive_folder = QLineEdit(self)
+		
+		
 		self.mode = QLineEdit(self)
 		self.type = QLineEdit(self)
+		
+		
 		self.bold = QCheckBox(self)
 		self.highlight = QCheckBox(self)
 		self.italics = QCheckBox(self)
@@ -69,12 +72,23 @@ class ObsidiankiSettings(QDialog):
 		self.convert_button = QPushButton("Save and Convert")
 		self.save_button = QPushButton("Save and Close")
 		
+		
 		layout.addRow(QLabel("Vault Path: "), self.vault_path)
 		layout.addRow(QLabel("Please use forward slashes for your vault path."))
+		layout.addRow(QLabel("Templates Folder Name: "), self.templates_folder)
+		layout.addRow(QLabel("Notes in Anki in this obsidian folder will be deleted, files in the folder will not."))
+		layout.addRow(QLabel("Trash Folder Name: "), self.trash_folder)
+		layout.addRow(QLabel("Notes in Anki and files in this obsidian folder will be deleted."))
+		layout.addRow(QLabel("Archive Folder Name: "), self.archive_folder)
+		layout.addRow(QLabel("Notes in Anki in this obsidian folder will be deleted, files in the folder will not."))
+		
+		
 		layout.addRow(QLabel("Mode: "), self.mode)
 		layout.addRow(QLabel("Mode: choose from word/line/heading/document"))
 		layout.addRow(QLabel("Type: "), self.type)
 		layout.addRow(QLabel("Type: choose from cloze/basic"))
+		
+		
 		layout.addRow(QLabel("Bold to Cloze: "), self.bold)
 		layout.addRow(QLabel("Italics to Cloze: "), self.italics)
 		layout.addRow(QLabel("Highlight to Cloze: "), self.highlight)
@@ -85,36 +99,30 @@ class ObsidiankiSettings(QDialog):
 		layout.addRow(QLabel("Inline Code to Cloze"), self.inline_code)
 		layout.addRow(QLabel("Block Code to Cloze"), self.block_code)
 		
+		
 		layout.addRow(self.save_button, self.convert_button)
 		
-		my_settings = settings.load_settings()
 		
-		try:
-			self.vault_path.setText(my_settings["vault path"])
-			self.mode.setText(my_settings["mode"])
-			self.type.setText(my_settings["type"])
-			self.bold.setChecked(get_bool(my_settings["bold"]))
-			self.italics.setChecked(get_bool(my_settings["italics"]))
-			self.highlight.setChecked(get_bool(my_settings["highlight"]))
-			self.image.setChecked(get_bool(my_settings["image"]))
-			self.quote.setChecked(get_bool(my_settings["quote"]))
-			self.QuestionOrAnswer.setChecked(get_bool(my_settings["QA"]))
-			self.list.setChecked(get_bool(my_settings["list"]))
-			self.inline_code.setChecked(get_bool(my_settings["inline code"]))
-			self.block_code.setChecked(get_bool(my_settings["block code"]))
-		except KeyError:
-			self.vault_path.setText(settings.default_settings["vault path"])
-			self.mode.setText(settings.default_settings["mode"])
-			self.type.setText(settings.default_settings["type"])
-			self.bold.setChecked(get_bool(settings.default_settings["bold"]))
-			self.italics.setChecked(get_bool(settings.default_settings["italics"]))
-			self.highlight.setChecked(get_bool(settings.default_settings["highlight"]))
-			self.image.setChecked(get_bool(settings.default_settings["image"]))
-			self.quote.setChecked(get_bool(settings.default_settings["quote"]))
-			self.QuestionOrAnswer.setChecked(get_bool(settings.default_settings["QA"]))
-			self.list.setChecked(get_bool(settings.default_settings["list"]))
-			self.inline_code.setChecked(get_bool(settings.default_settings["inline code"]))
-			self.block_code.setChecked(get_bool(settings.default_settings["block code"]))
+		self.vault_path.setText(settings.get_settings_by_name("vault path"))
+		self.templates_folder.setText(settings.get_settings_by_name("templates folder"))
+		self.trash_folder.setText(settings.get_settings_by_name("trash folder"))
+		self.archive_folder.setText(settings.get_settings_by_name("archive folder"))
+		
+		
+		self.mode.setText(settings.get_settings_by_name("mode"))
+		self.type.setText(settings.get_settings_by_name("type"))
+		
+		
+		self.bold.setChecked(get_bool(settings.get_settings_by_name("bold")))
+		self.italics.setChecked(get_bool(settings.get_settings_by_name("italics")))
+		self.highlight.setChecked(get_bool(settings.get_settings_by_name("highlight")))
+		self.image.setChecked(get_bool(settings.get_settings_by_name("image")))
+		self.quote.setChecked(get_bool(settings.get_settings_by_name("quote")))
+		self.QuestionOrAnswer.setChecked(get_bool(settings.get_settings_by_name("QA")))
+		self.list.setChecked(get_bool(settings.get_settings_by_name("list")))
+		self.inline_code.setChecked(get_bool(settings.get_settings_by_name("inline code")))
+		self.block_code.setChecked(get_bool(settings.get_settings_by_name("block code")))
+		
 		
 		self.convert_button.setDefault(True)
 		self.convert_button.clicked.connect(self.onOk)
@@ -124,6 +132,9 @@ class ObsidiankiSettings(QDialog):
 	def onOk(self):
 		newSettings = {}
 		newSettings["vault path"] = self.vault_path.text()
+		newSettings["templates folder"] = self.templates_folder.text()
+		newSettings["trash folder"] = self.trash_folder.text()
+		newSettings["archive folder"] = self.archive_folder.text()
 		newSettings["mode"] = self.mode.text()
 		newSettings["type"] = self.type.text()
 		newSettings["bold"] = get_text(self.bold.isChecked())
@@ -159,11 +170,14 @@ class ObsidiankiSettings(QDialog):
 	def onSave(self):
 		newSettings = {}
 		newSettings["vault path"] = self.vault_path.text()
+		newSettings["templates folder"] = self.templates_folder.text()
+		newSettings["trash folder"] = self.trash_folder.text()
+		newSettings["archive folder"] = self.archive_folder.text()
 		newSettings["mode"] = self.mode.text()
 		newSettings["type"] = self.type.text()
 		newSettings["bold"] = get_text(self.bold.isChecked())
-		newSettings["italics"] = get_text(self.italics.isChecked())
 		newSettings["highlight"] = get_text(self.highlight.isChecked())
+		newSettings["italics"] = get_text(self.italics.isChecked())
 		newSettings["image"] = get_text(self.image.isChecked())
 		newSettings["quote"] = get_text(self.quote.isChecked())
 		newSettings["QA"] = get_text(self.QuestionOrAnswer.isChecked())
@@ -177,4 +191,3 @@ action = QAction("Obsidianki 4", aqt.mw)
 action.triggered.connect(lambda: ObsidiankiSettings(aqt.mw))
 
 aqt.mw.form.menuTools.addAction(action)
-		

@@ -11,6 +11,9 @@ from PyQt5 import QtWidgets, QtCore
 
 default_settings = {
     "vault path": "/Users/xiuxuan/Knowledge Base",
+    "trash folder": "Trash",
+    "archive folder": "Archive",
+    "templates folder": "Templates",
     "mode": "heading",
     "type": "cloze",
     "bold": "True",
@@ -44,7 +47,7 @@ def get_settings():
 
 def get_settings_by_name(setting_name):
     settings = load_settings()
-    return settings[setting_name]
-
-
-
+    try:
+        return settings[setting_name]
+    except KeyError:
+        return default_settings[setting_name]
