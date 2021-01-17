@@ -27,8 +27,12 @@ def read_file(full_path:str) -> list:
 	with open(full_path, mode="r", encoding="utf-8") as file:
 		source = file.read()
 		temporary_content = markdown2Mathjax.sanitizeInput(source)
-		markdown_file = markdown2.markdown(temporary_content[0], extras = ["fenced-code-blocks", "metadata", "strike", "tables", "tag-friendly", "task_list", "footnotes", "break-on-newline"])
-		metadata = markdown_file.metadata
+		if source.startswith("---"):
+			markdown_file = markdown2.markdown(temporary_content[0], extras = ["fenced-code-blocks", "metadata", "strike", "tables", "tag-friendly", "task_list", "footnotes", "break-on-newline"])
+			metadata = markdown_file.metadata
+		else:
+			markdown_file = markdown2.markdown(temporary_content[0], extras = ["fenced-code-blocks", "strike", "tables", "tag-friendly", "task_list", "footnotes", "break-on-newline"])
+			metadata = {}
 		try:
 			uid = metadata["uid"]
 		except:
@@ -36,7 +40,6 @@ def read_file(full_path:str) -> list:
 			new_source = source + full_path + str(random_number)
 			uid = str(abs(hash(new_source)))
 			if len(metadata) == 0:
-				markdown_file = markdown2.markdown(temporary_content[0], extras = ["fenced-code-blocks", "strike", "tables", "tag-friendly", "task_list", "break-on-newline", "footnotes"])
 				source = "---\nuid: " + uid + "\n---\n\n" + source
 			else:
 				source_lines = source.split("\n")
@@ -46,6 +49,7 @@ def read_file(full_path:str) -> list:
 			temporary_content[1][i] = html.escape(temporary_content[1][i])
 			temporary_content[1][i] = temporary_content[1][i].replace("{{", "{ {")
 			temporary_content[1][i] = temporary_content[1][i].replace("}}", "} }")
+		
 		cloze_settings = metadata_to_settings(metadata)
 		
 		markdown_file = get_converted_file(cloze_settings, markdown_file)
@@ -53,6 +57,7 @@ def read_file(full_path:str) -> list:
 			markdown_file[1] = False
 		output = markdown2Mathjax.reconstructMath(markdown_file[0], temporary_content[1])
 	output = math_conversion(output)
+	
 	# FIXME: output here
 	with open(full_path, mode = "w", encoding = "utf-8") as file:
 		file.write(source)
@@ -60,24 +65,12 @@ def read_file(full_path:str) -> list:
 
 def metadata_to_settings(metadata: dict) -> dict:
 	new_settings = {}
-	some_settings = settings.get_settings()
-	try:
-		if metadata["type"] == "cloze":
-			for key in some_settings.keys():
-				try:
-					new_settings[key] = metadata[key]
-				except:
-					if key != "vault path":
-						new_settings[key] = some_settings[key]
-		elif metadata["type"] == "basic":
-			for key in some_settings.keys():
-				if key != "vault path":
-					new_settings[key] = "False"
-				new_settings["type"] = "basic"
-				new_settings["mode"] = "None"
-	except KeyError:
-		metadata["type"] = some_settings["type"]
-		new_settings = metadata_to_settings(metadata)
+	default_settings = settings.get_settings()
+	for individual_key in default_settings.keys():
+		try:
+			new_settings[individual_key] = metadata[individual_key]
+		except KeyError:
+			new_settings[individual_key] = default_settings[individual_key]
 	return new_settings
 
 def get_converted_file(cloze_settings, file_content):
@@ -85,87 +78,99 @@ def get_converted_file(cloze_settings, file_content):
 	file_content = cloze_number_generation(cloze_settings["mode"], file_content)
 	return file_content
 
+# Special thanks to Anis Qiao (https://github.com/qiaozhanrong) for the math_conversion section of the code! Now, obsidianki can support display math formula written in multiple lines. 
+
 def math_conversion(file_content):
-	tmp = file_content.split("\n")
-	isOpen = True
-	for i in range(0, len(tmp)):
-		while tmp[i].find("$$") != -1:
-			if isOpen:
-				tmp[i] = tmp[i].replace("$$", "\[", 1)
-				isOpen = False
-			else:
-				tmp[i] = tmp[i].replace("$$", "\]", 1)
-				isOpen = True
-		isOpen = True
-		while tmp[i].find("$") != -1:
-			if isOpen:
-				tmp[i] = tmp[i].replace("$", "\(", 1)
-				isOpen = False
-			else:
-				tmp[i] = tmp[i].replace("$", "\)", 1)
-				isOpen = True
-	file_content = "\n".join(tmp)
+	isOpen = False
+	s = ""
+	p = 0
+	while True:
+		q = file_content.find("$$", p)
+		if q == -1:
+			s += file_content[p:]
+			break
+		s += file_content[p:q] + ("\]" if isOpen else "\[")
+		isOpen = not isOpen
+		p = q + 2
+	file_content = s
+	
+	isOpen = False
+	s = ""
+	p = 0
+	while True:
+		q = file_content.find("$", p)
+		if q == -1:
+			s += file_content[p:]
+			break
+		s += file_content[p:q] + ("\)" if isOpen else "\(")
+		isOpen = not isOpen
+		p = q + 1
+	file_content = s
+	
 	return file_content
 				
 def cloze_generation(cloze_settings:dict, file_content:str) -> str:
-	if cloze_settings["bold"] == "True" or cloze_settings["bold"] == "true":
-		file_content = file_content.replace("<strong>", "<strong>{{c¡::")
-		file_content = file_content.replace("</strong>", "}}</strong>")
-	if cloze_settings["italics"] == "True" or cloze_settings["italics"] == "true":
-		file_content = file_content.replace("<em>", "<em>{{c¡::")
-		file_content = file_content.replace("</em>", "}}</em>")
-	if cloze_settings["image"] == "True" or cloze_settings["image"] == "true":
-		file_content = apply_cloze_to_image(file_content)
-	if cloze_settings["inline code"] == "True" or cloze_settings["inline code"] == "true":
-		file_content = re.sub(r"<code>(?!<span)", "<code>{{c¡::", file_content)
-		file_content = re.sub(r"</code>(?!</pre>)", "}}</code>", file_content)
-	if cloze_settings["QA"] == "True" or cloze_settings["QA"] == "true":
-		tmp = file_content.split("\n")
-		for i in range(0, len(tmp)):
-			if tmp[i].startswith("<p>A: ") and tmp[i].endswith("</p>\n"):
-				tmp[i] = tmp[i].replace("{{c¡::", "")
-				# TODO: add a security check to make sure that these two things are in the same line. 
-				
-				tmp[i] = tmp[i].replace("<p>A: ", "<p>A: {{c¡::")
-				tmp[i] = tmp[i].replace("</p>", "}}</p>")
-			elif tmp[i].startswith("<p>答：") and tmp[i].endswith("</p>\n"):
-				tmp[i] = tmp[i].replace("{{c¡::", "")
-				tmp[i] = tmp[i].replace("<p>答：", "<p>答：{{c¡::")
-				tmp[i] = tmp[i].replace("</p>", "}}</p>")
-			# ==================================================================
-			# | You Can Disable this code if you Enabled strict line spacing.  |
-			# ==================================================================
-			elif tmp[i].startswith("A: ") and tmp[i].endswith("</p>\n"):
-				tmp[i] = tmp[i].replace("{{c¡::", "")
-				tmp[i] = tmp[i].replace("A: ", "A: {{c¡::", 1)
-				tmp[i] = tmp[i].replace("</p>", "}}</p>")
-			elif tmp[i].startswith("答：") and tmp[i].endswith("</p>\n"):
-				tmp[i] = tmp[i].replace("{{c¡::", "")
-				tmp[i] = tmp[i].replace("答：", "答: {{c¡::")
-				tmp[i] = tmp[i].replace("</p>", "}}</p>")
-		file_content = "\n".join(tmp)
-	if cloze_settings["list"] == "True" or cloze_settings["list"] == "true":
-		tmp = file_content.split("\n")
-		for i in range(0, len(tmp)):
-			if tmp[i].find("{{c¡::") != -1:
-				pass
-			else:
-				tmp[i] = tmp[i].replace("<li>", "<li>{{c¡::")
-				tmp[i] = tmp[i].replace("</li>", "}}</li>")
-		file_content = "\n".join(tmp)
-	if cloze_settings["quote"] == "True" or cloze_settings["quote"] == "true":
-		# ===================================================
-		# | TODO: use REGEX to replace the proper ones here |
-		# ===================================================
-		file_content = file_content.replace("<blockquote>", "<blockquote>{{c¡::")
-		file_content = file_content.replace("</blockquote>", "}}</blockquote>")
-	if cloze_settings["block code"] == "True" or cloze_settings["block code"] == "true":
-		# ===================================================
-		# | TODO: use REGEX to replace the proper ones here |
-		# ===================================================
-		file_content = file_content.replace("<div class=\"codehilite\"><pre><span></span><code>", "<div class=\"codehilite\"><pre><span></span><code>{{c¡::")
-		file_content = file_content.replace("</code></pre></div>", "}}</code></pre></div>")
-	file_content = highlight_conversion(file_content, cloze_settings["highlight"])
+	if cloze_settings["type"] == "cloze":
+		if cloze_settings["bold"] == "True" or cloze_settings["bold"] == "true":
+			file_content = file_content.replace("<strong>", "<strong>{{c¡::")
+			file_content = file_content.replace("</strong>", "}}</strong>")
+		if cloze_settings["italics"] == "True" or cloze_settings["italics"] == "true":
+			file_content = file_content.replace("<em>", "<em>{{c¡::")
+			file_content = file_content.replace("</em>", "}}</em>")
+		if cloze_settings["image"] == "True" or cloze_settings["image"] == "true":
+			file_content = apply_cloze_to_image(file_content)
+		if cloze_settings["inline code"] == "True" or cloze_settings["inline code"] == "true":
+			file_content = re.sub(r"<code>(?!<span)", "<code>{{c¡::", file_content)
+			file_content = re.sub(r"</code>(?!</pre>)", "}}</code>", file_content)
+		if cloze_settings["QA"] == "True" or cloze_settings["QA"] == "true":
+			tmp = file_content.split("\n")
+			for i in range(0, len(tmp)):
+				if tmp[i].startswith("<p>A: ") and tmp[i].endswith("</p>\n"):
+					tmp[i] = tmp[i].replace("{{c¡::", "")
+					# TODO: add a security check to make sure that these two things are in the same line. 
+					
+					tmp[i] = tmp[i].replace("<p>A: ", "<p>A: {{c¡::")
+					tmp[i] = tmp[i].replace("</p>", "}}</p>")
+				elif tmp[i].startswith("<p>答：") and tmp[i].endswith("</p>\n"):
+					tmp[i] = tmp[i].replace("{{c¡::", "")
+					tmp[i] = tmp[i].replace("<p>答：", "<p>答：{{c¡::")
+					tmp[i] = tmp[i].replace("</p>", "}}</p>")
+				# ==================================================================
+				# | You Can Disable this code if you Enabled strict line spacing.  |
+				# ==================================================================
+				elif tmp[i].startswith("A: ") and tmp[i].endswith("</p>\n"):
+					tmp[i] = tmp[i].replace("{{c¡::", "")
+					tmp[i] = tmp[i].replace("A: ", "A: {{c¡::", 1)
+					tmp[i] = tmp[i].replace("</p>", "}}</p>")
+				elif tmp[i].startswith("答：") and tmp[i].endswith("</p>\n"):
+					tmp[i] = tmp[i].replace("{{c¡::", "")
+					tmp[i] = tmp[i].replace("答：", "答: {{c¡::")
+					tmp[i] = tmp[i].replace("</p>", "}}</p>")
+			file_content = "\n".join(tmp)
+		if cloze_settings["list"] == "True" or cloze_settings["list"] == "true":
+			tmp = file_content.split("\n")
+			for i in range(0, len(tmp)):
+				if tmp[i].find("{{c¡::") != -1:
+					pass
+				else:
+					tmp[i] = tmp[i].replace("<li>", "<li>{{c¡::")
+					tmp[i] = tmp[i].replace("</li>", "}}</li>")
+			file_content = "\n".join(tmp)
+		if cloze_settings["quote"] == "True" or cloze_settings["quote"] == "true":
+			# ===================================================
+			# | TODO: use REGEX to replace the proper ones here |
+			# ===================================================
+			file_content = file_content.replace("<blockquote>", "<blockquote>{{c¡::")
+			file_content = file_content.replace("</blockquote>", "}}</blockquote>")
+		if cloze_settings["block code"] == "True" or cloze_settings["block code"] == "true":
+			# ===================================================
+			# | TODO: use REGEX to replace the proper ones here |
+			# ===================================================
+			file_content = file_content.replace("<div class=\"codehilite\"><pre><span></span><code>", "<div class=\"codehilite\"><pre><span></span><code>{{c¡::")
+			file_content = file_content.replace("</code></pre></div>", "}}</code></pre></div>")
+		file_content = highlight_conversion(file_content, cloze_settings["highlight"])
+	elif cloze_settings["type"] == "basic" or cloze_settings["type"] == "Basic":
+		file_content = highlight_conversion(file_content, "False")
 	return file_content
 
 def cloze_number_generation(mode:str, file_content:str) -> [str, bool]:
@@ -180,11 +185,11 @@ def cloze_number_generation(mode:str, file_content:str) -> [str, bool]:
 			cloze_num = cloze_num + 1
 	elif mode == "line":
 		tmp = file_content.split("\n")
+		cloze_num = 0
 		for i in range (0, len(tmp)):
-			cloze_num = 0
-			while tmp[i].find("¡") != -1:
+			if tmp[i].find("¡") != -1:
 				cloze_num = cloze_num + 1
-				tmp[i] = tmp[i].replace("¡", str(cloze_num), 1)
+				tmp[i] = tmp[i].replace("¡", str(cloze_num))
 		file_content = "\n".join(tmp)
 	elif mode == "heading":
 		# ==========================================================
