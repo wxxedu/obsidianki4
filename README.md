@@ -1,9 +1,16 @@
 # obsidianki 4
 
-> **Please back-up your vault regularly while using this add-on!**
+> **Please back-up your vault regularly while using this add-on!** 
 >
-> Theoretically, it now supports Anki 2.1.28 +. I am unware whether if supports earlier version, and I wasn't able to test it on Anki 2.1.28 as my laptop is a M1 MacBook Air and Anki 2.1.28 does not open on it. 
+> I am a noob in programming, while no occasion of losing notes has happened, I am afraid that it might. As your notes are valuable, please do remember to back up notes. 
+>
+> **Versions**
+>
+> Theoretically, it now supports Anki 2.1.26 +. I am unaware whether if supports earlier version, and I wasn't able to test it on Anki 2.1.28 as my laptop is a M1 MacBook Air and Anki 2.1.28 does not open on it. 
 > 
+> **Expectations**
+> 
+> With this add-on, it is expected that you make all your changes in Obsidian (including the deletion, addition, and moving of the files). If you want to edit a file, you can just click on the link in Anki to link back to Obsidian. Instead of deleting files, you should move unused files into the trash folder that you specify at the first level in your vault. Obsidianki will automatically remove them for you. 
 
 This is a [Anki](https://github.com/ankitects) add-on that would import your files from [Obsidian](https://obsidian.md) into Anki while preserving the wiki-links. Each file in Obsidianki will be converted to a single note in Anki. It does so by searching through your vault for the file with the name specified and generating an Obsidian url from the path. 
 
