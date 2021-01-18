@@ -161,7 +161,6 @@ class ObsidiankiSettings(QDialog):
 		for i in range(0, length_of_files):
 			my_files_catalog[i].set_file_content(obsidian_url.process_obsidian_file(my_files_catalog[i].file_content, my_files_catalog))
 		
-		
 		anki_importer.importer(my_files_catalog)
 		
 		###############################################################################################################################

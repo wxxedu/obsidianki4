@@ -53,7 +53,7 @@ def read_file(full_path:str) -> list:
 		cloze_settings = metadata_to_settings(metadata)
 		
 		markdown_file = get_converted_file(cloze_settings, markdown_file)
-		if cloze_settings["type"] != "cloze":
+		if cloze_settings["type"] != "cloze" and cloze_settings["type"] != "Cloze":
 			markdown_file[1] = False
 		output = markdown2Mathjax.reconstructMath(markdown_file[0], temporary_content[1])
 	output = math_conversion(output)
@@ -110,7 +110,7 @@ def math_conversion(file_content):
 	return file_content
 				
 def cloze_generation(cloze_settings:dict, file_content:str) -> str:
-	if cloze_settings["type"] == "cloze":
+	if cloze_settings["type"] == "cloze" or cloze_settings["type"] == "Cloze":
 		if cloze_settings["bold"] == "True" or cloze_settings["bold"] == "true":
 			file_content = file_content.replace("<strong>", "<strong>{{c¡::")
 			file_content = file_content.replace("</strong>", "}}</strong>")
@@ -125,27 +125,31 @@ def cloze_generation(cloze_settings:dict, file_content:str) -> str:
 		if cloze_settings["QA"] == "True" or cloze_settings["QA"] == "true":
 			tmp = file_content.split("\n")
 			for i in range(0, len(tmp)):
-				if tmp[i].startswith("<p>A: ") and tmp[i].endswith("</p>\n"):
-					tmp[i] = tmp[i].replace("{{c¡::", "")
+				if tmp[i].startswith("<p>A: ") and tmp[i].endswith("</p>"):
 					# TODO: add a security check to make sure that these two things are in the same line. 
+					tmp[i] = tmp[i].replace("{{¡::", "")
+					tmp[i] = tmp[i].replace("}}", "")
+					tmp[i] = tmp[i].replace("<p>A: ", "<p>A: {{c¡::", 1)
+					tmp[i] = tmp[i].replace("</p>", "}}</p>", 1)
+				elif tmp[i].startswith("<p>答：") and tmp[i].endswith("</p>"):
+					tmp[i] = tmp[i].replace("{{¡::", "")
+					tmp[i] = tmp[i].replace("}}", "")
+					tmp[i] = tmp[i].replace("<p>答：", "<p>答：{{c¡::", 1)
+					tmp[i] = tmp[i].replace("</p>", "}}</p>")
 					
-					tmp[i] = tmp[i].replace("<p>A: ", "<p>A: {{c¡::")
-					tmp[i] = tmp[i].replace("</p>", "}}</p>")
-				elif tmp[i].startswith("<p>答：") and tmp[i].endswith("</p>\n"):
-					tmp[i] = tmp[i].replace("{{c¡::", "")
-					tmp[i] = tmp[i].replace("<p>答：", "<p>答：{{c¡::")
-					tmp[i] = tmp[i].replace("</p>", "}}</p>")
 				# ==================================================================
 				# | You Can Disable this code if you Enabled strict line spacing.  |
 				# ==================================================================
-				elif tmp[i].startswith("A: ") and tmp[i].endswith("</p>\n"):
-					tmp[i] = tmp[i].replace("{{c¡::", "")
+				elif tmp[i].startswith("A: ") and tmp[i].endswith("</p>"):
+					tmp[i] = tmp[i].replace("{{¡::", "")
+					tmp[i] = tmp[i].replace("}}", "")
 					tmp[i] = tmp[i].replace("A: ", "A: {{c¡::", 1)
-					tmp[i] = tmp[i].replace("</p>", "}}</p>")
-				elif tmp[i].startswith("答：") and tmp[i].endswith("</p>\n"):
-					tmp[i] = tmp[i].replace("{{c¡::", "")
-					tmp[i] = tmp[i].replace("答：", "答: {{c¡::")
-					tmp[i] = tmp[i].replace("</p>", "}}</p>")
+					tmp[i] = tmp[i].replace("</p>", "}}</p>", 1)
+				elif tmp[i].startswith("答：") and tmp[i].endswith("</p>"):
+					tmp[i] = tmp[i].replace("{{¡::", "")
+					tmp[i] = tmp[i].replace("}}", "")
+					tmp[i] = tmp[i].replace("答：", "答: {{c¡::", 1)
+					tmp[i] = tmp[i].replace("</p>", "}}</p>", 1)
 			file_content = "\n".join(tmp)
 		if cloze_settings["list"] == "True" or cloze_settings["list"] == "true":
 			tmp = file_content.split("\n")
@@ -175,6 +179,7 @@ def cloze_generation(cloze_settings:dict, file_content:str) -> str:
 
 def cloze_number_generation(mode:str, file_content:str) -> [str, bool]:
 	has_cloze = False
+	
 	if file_content.find("¡") != -1:
 		has_cloze = True
 	
