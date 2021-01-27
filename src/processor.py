@@ -203,13 +203,26 @@ def cloze_number_generation(mode:str, file_content:str) -> [str, bool]:
 		tmp = file_content.split("\n")
 		cloze_num = 0
 		increase_num = 0
+		new_cloze = 0
 		for i in range(0, len(tmp)):
 			if re.search(r"<h\d>", tmp[i]) != None:
 				cloze_num = get_cloze_number(tmp) + 1
-			elif tmp[i].startswith("<p>A: ") or tmp[i].startswith("<p>答：") or tmp[i].startswith("<li>") or tmp[i].startswith("A: ") or tmp[i].startswith("答："):
+			elif tmp[i].startswith("<p>A: ") or tmp[i].startswith("<p>答：") or tmp[i].startswith("A: ") or tmp[i].startswith("答："):
 				increase_num = get_cloze_number(tmp) + 1
 				tmp[i] = tmp[i].replace("¡", str(increase_num))
 				cloze_num = increase_num + 1
+			elif tmp[i].startswith("<li>"):
+				if new_cloze == 0:
+					new_cloze = 1
+					increase_num = get_cloze_number(tmp) + 1
+					tmp[i] = tmp[i].replace("¡", str(increase_num))
+				elif new_cloze == 1 and i < (len(tmp) - 2) and tmp[i + 1].startswith("<li>"):
+					tmp[i] = tmp[i].replace("¡", str(increase_num))
+				elif new_cloze == 1 and i < (len(tmp) - 2) and not tmp[i + 1].startswith("<li>"):
+					tmp[i] = tmp[i].replace("¡", str(increase_num))
+					cloze_num = increase_num + 1
+					new_cloze = 0
+				
 			tmp[i] = tmp[i].replace("¡", str(cloze_num))
 		file_content = "\n".join(tmp)
 	elif mode == "document":
