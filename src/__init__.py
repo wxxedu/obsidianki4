@@ -20,9 +20,26 @@ def read_files(root_path, relative_path):
 	else:
 		paths = os.listdir(root_path + "/" + relative_path)
 	for path in paths:
-		if path.find(".") != -1 and path.split(".")[-1] != "md":
+		foler_is_ignored = False
+		ignore_folder_s = settings.get_settings_by_name("ignore folder")
+		
+		if ignore_folder_s == "":
 			pass
-		elif path == settings.get_settings_by_name("templates folder"):
+		elif ignore_folder_s.find("\n") != -1:
+			ignore_folders = ignore_folder_s.split("\n")
+		else:
+			ignore_folders = [ignore_folder_s]
+		
+		for ignore_folder in ignore_folders:
+			ignore_folder = ignore_folder.lstrip(" ")
+			ignore_folder = ignore_folder.rstrip(" ")
+			ignore_folder = "/" + ignore_folder
+			if relative_path.startswith(ignore_folder):
+				foler_is_ignored = True
+		
+		if path.find(".") != -1 and path.split(".")[-1] != "md" and path != ".trash":
+			pass
+		elif foler_is_ignored:
 			pass
 		elif path.endswith(".md"):
 			new_path = relative_path + "/" + path
@@ -53,10 +70,9 @@ class ObsidiankiSettings(QDialog):
 		layout = QFormLayout(self)
 		
 		
-		self.vault_path = QLineEdit(self)
-		self.templates_folder = QLineEdit(self)
-		self.trash_folder = QLineEdit(self)
-		self.archive_folder = QLineEdit(self)
+		self.vault_path = QPlainTextEdit(self)
+		self.templates_folder = QPlainTextEdit(self)
+		self.archive_folder = QPlainTextEdit(self)
 		
 		
 		self.mode = QLineEdit(self)
@@ -76,14 +92,17 @@ class ObsidiankiSettings(QDialog):
 		self.save_button = QPushButton("Save and Close")
 		
 		
-		layout.addRow(QLabel("Vault Path: "), self.vault_path)
-		layout.addRow(QLabel("Please use forward slashes for your vault path."))
-		layout.addRow(QLabel("Templates Folder Name: "), self.templates_folder)
-		layout.addRow(QLabel("Notes in Anki in this obsidian folder will be deleted, files in the folder will not."))
-		layout.addRow(QLabel("Trash Folder Name: "), self.trash_folder)
-		layout.addRow(QLabel("Notes in Anki and files in this obsidian folder will be deleted."))
-		layout.addRow(QLabel("Archive Folder Name: "), self.archive_folder)
-		layout.addRow(QLabel("Notes in Anki in this obsidian folder will be deleted, files in the folder will not."))
+		layout.addRow(QLabel("Vault Path: "))
+		layout.addRow(QLabel("(Please use forward slashes for your vault path)"))
+		layout.addRow(self.vault_path)
+		
+		layout.addRow(QLabel("Ignore Folders: "))
+		layout.addRow(QLabel("(Notes in Anki in this obsidian folder will be ignored)"))
+		layout.addRow(self.templates_folder)
+		
+		layout.addRow(QLabel("Archive Folder Name: "))
+		layout.addRow(self.archive_folder)
+		layout.addRow(QLabel("Anki Cards in this folder will be deleted"))
 		
 		
 		layout.addRow(QLabel("Mode: "), self.mode)
@@ -106,10 +125,9 @@ class ObsidiankiSettings(QDialog):
 		layout.addRow(self.save_button, self.convert_button)
 		
 		
-		self.vault_path.setText(settings.get_settings_by_name("vault path"))
-		self.templates_folder.setText(settings.get_settings_by_name("templates folder"))
-		self.trash_folder.setText(settings.get_settings_by_name("trash folder"))
-		self.archive_folder.setText(settings.get_settings_by_name("archive folder"))
+		self.vault_path.setPlainText(settings.get_settings_by_name("vault path"))
+		self.templates_folder.setPlainText(settings.get_settings_by_name("ignore folder"))
+		self.archive_folder.setPlainText(settings.get_settings_by_name("archive folder"))
 		
 		
 		self.mode.setText(settings.get_settings_by_name("mode"))
@@ -134,10 +152,10 @@ class ObsidiankiSettings(QDialog):
 		
 	def onOk(self):
 		newSettings = {}
-		newSettings["vault path"] = self.vault_path.text()
-		newSettings["templates folder"] = self.templates_folder.text()
-		newSettings["trash folder"] = self.trash_folder.text()
-		newSettings["archive folder"] = self.archive_folder.text()
+		newSettings["vault path"] = self.vault_path.toPlainText()
+		newSettings["ignore folder"] = self.templates_folder.toPlainText()
+		# newSettings["trash folder"] = self.trash_folder.text()
+		newSettings["archive folder"] = self.archive_folder.toPlainText()
 		newSettings["mode"] = self.mode.text()
 		newSettings["type"] = self.type.text()
 		newSettings["bold"] = get_text(self.bold.isChecked())
@@ -155,7 +173,15 @@ class ObsidiankiSettings(QDialog):
 		###############################################################################################################################
 		###############################################################################################################################
 		
-		my_files_catalog = read_files(self.vault_path.text(), "")
+		if self.vault_path.toPlainText().find("\n") != -1:
+			vault_paths = self.vault_path.toPlainText().split("\n")
+		else:
+			vault_paths = [self.vault_path.toPlainText()]
+			
+		for a_vault_path in vault_paths:
+			showInfo(a_vault_path)
+			if a_vault_path != "":
+				my_files_catalog = read_files(a_vault_path, "")
 		
 		length_of_files = len(my_files_catalog)
 		for i in range(0, length_of_files):
@@ -174,10 +200,10 @@ class ObsidiankiSettings(QDialog):
 		
 	def onSave(self):
 		newSettings = {}
-		newSettings["vault path"] = self.vault_path.text()
-		newSettings["templates folder"] = self.templates_folder.text()
-		newSettings["trash folder"] = self.trash_folder.text()
-		newSettings["archive folder"] = self.archive_folder.text()
+		newSettings["vault path"] = self.vault_path.toPlainText()
+		newSettings["ignore folder"] = self.templates_folder.toPlainText()
+		newSettings["archive folder"] = self.archive_folder.toPlainText()
+		
 		newSettings["mode"] = self.mode.text()
 		newSettings["type"] = self.type.text()
 		newSettings["bold"] = get_text(self.bold.isChecked())

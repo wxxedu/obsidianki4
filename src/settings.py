@@ -13,7 +13,7 @@ default_settings = {
     "vault path": "/Users/xiuxuan/Knowledge Base",
     "trash folder": "Trash",
     "archive folder": "Archive",
-    "templates folder": "Templates",
+    "ignore folder": "Templates",
     "mode": "heading",
     "type": "cloze",
     "bold": "True",

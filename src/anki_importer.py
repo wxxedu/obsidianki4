@@ -15,7 +15,25 @@ def importer(my_files_catalog):
 	delete_empty_decks()
 	
 def importer_to_anki(file):
-	if file.get_file_root_folder() == settings.get_settings_by_name("trash folder"):
+	
+	archive_folder_input = settings.get_settings_by_name("archive folder")
+	if archive_folder_input == "":
+		pass
+	elif archive_folder_input.find("\n") != -1:
+		archive_folders = archive_folder_input.split("\n")
+	else:
+		archive_folders = [archive_folder_input]
+	
+	is_in_archive_folder = False
+	
+	for archive_folder in archive_folders:
+		archive_folder = archive_folder.lstrip(" ")
+		archive_folder = archive_folder.rstrip(" ")
+		archive_folder = "/" + archive_folder
+		if file.get_file_relative_path().startswith(archive_folder):
+			is_in_archive_folder = True
+	
+	if file.get_file_root_folder() == ".trash":
 		uid = file.get_file_uid()
 		note_list = mw.col.find_notes(uid)
 		if len(note_list) > 0:
@@ -26,7 +44,7 @@ def importer_to_anki(file):
 						mw.col.remNotes([single_note_id])
 				except KeyError:
 					pass
-	elif file.get_file_root_folder() == settings.get_settings_by_name("archive folder") or file.get_file_root_folder() == settings.get_settings_by_name("templates folder"):
+	elif is_in_archive_folder: # or file.get_file_root_folder() == settings.get_settings_by_name("ignore folder")
 		uid = file.get_file_uid()
 		note_list = mw.col.find_notes(uid)
 		if len(note_list) > 0:
@@ -100,17 +118,31 @@ def delete_empty_decks():
 			mw.col.decks.rem(deck_id, True, True)
 			
 def empty_trash():
-	path = settings.get_settings_by_name("vault path")
-	# TODO: Add this to settings
-	if settings.get_settings_by_name("trash folder") != "":
-		trash_can_path = path + "/" + settings.get_settings_by_name("trash folder")
-		trash_directories = os.listdir(trash_can_path)
-		for trash_directory in trash_directories:
-			trash_directory_path = trash_can_path + "/" + trash_directory
+	path_s = settings.get_settings_by_name("vault path")
+	
+	if path_s == "":
+		pass
+	elif path_s.find("\n"):
+		paths = path_s.split("\n")
+	else:
+		paths = [paths]
+	
+	for path in paths:
+		path = path.lstrip(" ")
+		path = path.rstrip(" ")
+		# TODO: Add this to settings
+		if path != "":
+			trash_can_path = path + "/" + ".trash"
 			try:
-				shutil.rmtree(trash_directory_path)
+				trash_directories = os.listdir(trash_can_path)
+				for trash_directory in trash_directories:
+					trash_directory_path = trash_can_path + "/" + trash_directory
+					try:
+						shutil.rmtree(trash_directory_path)
+					except NotADirectoryError:
+						os.remove(trash_directory_path)
 			except NotADirectoryError:
-				os.remove(trash_directory_path)
+				pass
 		
 def deck_has_cards(deck_id):
 	if deck_id != 1:

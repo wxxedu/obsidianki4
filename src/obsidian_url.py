@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+from aqt.utils import showInfo
+
 def process_obsidian_file(file_content:str, files_catalog:list):
 	lines = file_content.split("\n")
 	
@@ -18,7 +20,8 @@ def process_obsidian_file(file_content:str, files_catalog:list):
 			
 def process_obsidian_line(line, files_catalog:list):
 	if line.find("[[") != -1 and line.find("]]") != -1:
-		line = "ªªª" + line + "ªªª"
+		line = line.replace("[[", "ªªª[[")
+		line = line.replace("]]", "]]ªªª")
 		line_segments = line.split("[[")
 		line = "º".join(line_segments)
 		line_segments = line.split("]]")

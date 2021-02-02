@@ -69,10 +69,14 @@ class File:
     def get_file_root_folder(self):
         tmp = self.relative_path.lstrip("/")
         root_folder = tmp.split("/")[0]
+        # TODO: Delete this test code
         return root_folder
     
     def get_file_full_path(self):
         return self.full_path
+    
+    def get_file_relative_path(self):
+        return self.relative_path
     
     
     def generate_obsidian_url(self):

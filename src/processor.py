@@ -2,10 +2,12 @@
 import re
 import html
 import random
+import hashlib
 from . import settings
 from .markdown2 import markdown2
 from .markdown2 import markdown2Mathjax
 from aqt.utils import showInfo
+
 
 
 mark_file_extras = {
@@ -27,24 +29,30 @@ def read_file(full_path:str) -> list:
 	with open(full_path, mode="r", encoding="utf-8") as file:
 		source = file.read()
 		temporary_content = markdown2Mathjax.sanitizeInput(source)
+		temporary_content0 = temporary_content[0].replace("[[", "œœœ")
+		temporary_content0 = temporary_content[0].replace("]]", "®®®")
 		if source.startswith("---"):
-			markdown_file = markdown2.markdown(temporary_content[0], extras = ["fenced-code-blocks", "metadata", "strike", "tables", "tag-friendly", "task_list", "footnotes", "break-on-newline"])
+			markdown_file = markdown2.markdown(temporary_content0, extras = ["fenced-code-blocks", "metadata", "strike", "tables", "tag-friendly", "task_list", "footnotes", "break-on-newline"])
 			metadata = markdown_file.metadata
 		else:
-			markdown_file = markdown2.markdown(temporary_content[0], extras = ["fenced-code-blocks", "strike", "tables", "tag-friendly", "task_list", "footnotes", "break-on-newline"])
+			markdown_file = markdown2.markdown(temporary_content0, extras = ["fenced-code-blocks", "strike", "tables", "tag-friendly", "task_list", "footnotes", "break-on-newline"])
 			metadata = {}
+		markdown_file = markdown_file.replace("œœœ", "[[")
+		markdown_file = markdown_file.replace("®®®", "]]")
 		try:
 			uid = metadata["uid"]
 		except:
 			random_number = random.randint(0, 100000000000000000000000000000)
 			new_source = source + full_path + str(random_number)
-			uid = str(abs(hash(new_source)))
+			hash_value = hashlib.md5(new_source.encode())
+			uid = str(hash_value.hexdigest())
 			if len(metadata) == 0:
 				source = "---\nuid: " + uid + "\n---\n\n" + source
 			else:
 				source_lines = source.split("\n")
 				source_lines[0] = "---\nuid: " + uid
 				source = "\n".join(source_lines)
+			
 		for i in range(len(temporary_content[1])):
 			temporary_content[1][i] = html.escape(temporary_content[1][i])
 			temporary_content[1][i] = temporary_content[1][i].replace("{{", "{ {")
@@ -110,6 +118,7 @@ def math_conversion(file_content):
 	return file_content
 				
 def cloze_generation(cloze_settings:dict, file_content:str) -> str:
+	file_content = file_content.replace("#new_cloze", "<label id = \"tag\">#new_cloze</label>")
 	if cloze_settings["type"] == "cloze" or cloze_settings["type"] == "Cloze":
 		if cloze_settings["bold"] == "True" or cloze_settings["bold"] == "true":
 			file_content = file_content.replace("<strong>", "<strong>{{c¡::")
@@ -205,14 +214,19 @@ def cloze_number_generation(mode:str, file_content:str) -> [str, bool]:
 		increase_num = 0
 		new_cloze = 0
 		for i in range(0, len(tmp)):
-			if re.search(r"<h\d>", tmp[i]) != None:
+			if re.search(r"<h\d>", tmp[i]) != None or tmp[i].find("#new_cloze") != -1:
+				# TODO: add this to documentation
 				cloze_num = get_cloze_number(tmp) + 1
-			elif tmp[i].startswith("<p>A: ") or tmp[i].startswith("<p>答：") or tmp[i].startswith("A: ") or tmp[i].startswith("答："):
+			if tmp[i].startswith("<p>A: ") or tmp[i].startswith("<p>答：") or tmp[i].startswith("A: ") or tmp[i].startswith("答："):
 				increase_num = get_cloze_number(tmp) + 1
 				tmp[i] = tmp[i].replace("¡", str(increase_num))
 				cloze_num = increase_num + 1
 			elif tmp[i].startswith("<li>"):
-				if new_cloze == 0:
+				if new_cloze == 0 and i < (len(tmp) - 2) and not tmp[i + 1].startswith("<li>"):
+					increase_num = get_cloze_number(tmp) + 1
+					tmp[i] = tmp[i].replace("¡", str(increase_num))
+					cloze_num = increase_num + 1
+				elif new_cloze == 0:
 					new_cloze = 1
 					increase_num = get_cloze_number(tmp) + 1
 					tmp[i] = tmp[i].replace("¡", str(increase_num))
@@ -222,7 +236,6 @@ def cloze_number_generation(mode:str, file_content:str) -> [str, bool]:
 					tmp[i] = tmp[i].replace("¡", str(increase_num))
 					cloze_num = increase_num + 1
 					new_cloze = 0
-				
 			tmp[i] = tmp[i].replace("¡", str(cloze_num))
 		file_content = "\n".join(tmp)
 	elif mode == "document":
