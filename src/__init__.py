@@ -179,7 +179,6 @@ class ObsidiankiSettings(QDialog):
 			vault_paths = [self.vault_path.toPlainText()]
 			
 		for a_vault_path in vault_paths:
-			showInfo(a_vault_path)
 			if a_vault_path != "":
 				my_files_catalog = read_files(a_vault_path, "")
 		
