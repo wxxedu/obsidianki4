@@ -21,6 +21,7 @@ def read_files(root_path, relative_path):
 		paths = os.listdir(root_path + "/" + relative_path)
 	for path in paths:
 		foler_is_ignored = False
+		
 		ignore_folder_s = settings.get_settings_by_name("ignore folder")
 		
 		if ignore_folder_s == "":
@@ -34,7 +35,7 @@ def read_files(root_path, relative_path):
 			ignore_folder = ignore_folder.lstrip(" ")
 			ignore_folder = ignore_folder.rstrip(" ")
 			ignore_folder = "/" + ignore_folder
-			if relative_path.startswith(ignore_folder):
+			if relative_path.startswith(ignore_folder) and ignore_folder != "/":
 				foler_is_ignored = True
 		
 		if path.find(".") != -1 and path.split(".")[-1] != "md" and path != ".trash":
@@ -178,9 +179,11 @@ class ObsidiankiSettings(QDialog):
 		else:
 			vault_paths = [self.vault_path.toPlainText()]
 			
+		my_files_catalog = []
+			
 		for a_vault_path in vault_paths:
 			if a_vault_path != "":
-				my_files_catalog = read_files(a_vault_path, "")
+				my_files_catalog = my_files_catalog + read_files(a_vault_path, "")
 		
 		length_of_files = len(my_files_catalog)
 		for i in range(0, length_of_files):

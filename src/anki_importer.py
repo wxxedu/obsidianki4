@@ -30,10 +30,10 @@ def importer_to_anki(file):
 		archive_folder = archive_folder.lstrip(" ")
 		archive_folder = archive_folder.rstrip(" ")
 		archive_folder = "/" + archive_folder
-		if file.get_file_relative_path().startswith(archive_folder):
+		if file.get_file_relative_path().startswith(archive_folder) and archive_folder != "" and archive_folder != "\n":
 			is_in_archive_folder = True
 	
-	if file.get_file_root_folder() == ".trash":
+	if file.get_file_relative_path().startswith("/.trash"):
 		uid = file.get_file_uid()
 		note_list = mw.col.find_notes(uid)
 		if len(note_list) > 0:
